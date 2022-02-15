@@ -18,7 +18,6 @@ import android.view.ViewParent;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +30,10 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,40 +51,50 @@ public class NewDiaryActivity extends AppCompatActivity {
     private static final int GALLERY_PICK_IMAGE_CODE = 200;
     private static final int CAMERA_REQUEST_CODE = 300;
     private static final int CAMERA_TAKE_IMAGE_CODE = 400;
-    private RelativeLayout imageTemplateLayout;
+
+    private String currentPhotoPath;
+    private LinearLayout linearLayout;
+    private CircularProgressIndicator progressIndicator;
+    private FirebaseDatabase firebaseDatabase;
+    private FirebaseAuth firebaseAuth;
+    private DatabaseReference databaseReference;
+    private TextView dateAndTimeLabel;
+    private EditText titleText;
+    private EditText diaryMainEditText;
+
     private String[] readStoragePermission;
     private String[] cameraPermission;
     private final String[] hints = {"How was your day?", "What's in your mind?",
             "What was the best part of your day?", "How are you feeling today?",
             "Did you learn anything new today?", "What are you most proud of today?",
             "Did you get the chance to help anyone today?"};
-    private String currentPhotoPath;
-    private LinearLayout linearLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_diary);
 
+        // Declare/Initialize variables
         readStoragePermission = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
         cameraPermission = new String[]{Manifest.permission.CAMERA};
+        progressIndicator = findViewById(R.id.add_diary_progress_bar);
         linearLayout = findViewById(R.id.new_diary_linear_layout);
-        imageTemplateLayout = findViewById(R.id.diary_image_template);
+        dateAndTimeLabel = findViewById(R.id.date_and_time_label);
+        titleText = findViewById(R.id.diary_title);
+        diaryMainEditText = findViewById(R.id.diary_text);
 
+        // Configure the toolbar
         setSupportActionBar(findViewById(R.id.new_diary_toolbar));
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        // Set up date, time, title, and hint
         Date c = Calendar.getInstance().getTime();
         SimpleDateFormat df = new SimpleDateFormat("E, dd-MMM-yyyy   hh:mm a", Locale.getDefault());
         String formattedDate = df.format(c);
-        TextView dateAndTimeLabel = findViewById(R.id.date_and_time_label);
         dateAndTimeLabel.setText(formattedDate);
-        EditText diaryEditText = findViewById(R.id.diary_text);
-        diaryEditText.setHint(hints[new Random().nextInt(hints.length)]);
-
-        EditText titleText = findViewById(R.id.diary_title);
+        diaryMainEditText.setHint(hints[new Random().nextInt(hints.length)]);
         titleText.requestFocus();
     }
 
@@ -108,8 +121,33 @@ public class NewDiaryActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.add_photo) {
             displayImagePickerDialog();
+            return true;
+        } else if (item.getItemId() == R.id.save_diary) {
+            // TODO: 2/15/2022 save diary to firebase
+/*
+            firebaseAuth = FirebaseAuth.getInstance();
+            firebaseDatabase = FirebaseDatabase.getInstance("https://idiary-341301-default-rtdb.asia-southeast1.firebasedatabase.app");
+            databaseReference = firebaseDatabase.getReference();
+            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+
+            String dateAndTime = dateAndTimeLabel.getText().toString();
+            String title = titleText.getText().toString();
+            String diaryMainText = diaryMainEditText.getText().toString();
+
+            if (firebaseUser != null) {
+                progressIndicator.setVisibility(View.VISIBLE);
+                progressIndicator.setProgressCompat(500,true);
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            }
+            saveDiaryToDatabase();
+            System.out.println("saved");
+            return true;*/
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void saveDiaryToDatabase() {
+
     }
 
     private void displayImagePickerDialog() {

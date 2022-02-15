@@ -14,6 +14,10 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="MyTextInputLayout_overlay">
+        <item name="colorPrimary">@android:color/background_dark</item>
+    </style>
+
     <style name="Theme.Idiary.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

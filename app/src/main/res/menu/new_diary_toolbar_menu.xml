@@ -6,4 +6,9 @@
             android:title="@string/add_a_photo"
             android:icon="@drawable/ic_insert_photo"
             app:showAsAction="always" />
+    <item
+            android:id="@+id/save_diary"
+            android:title="@string/save_diary"
+            android:icon="@drawable/ic_icon_save"
+            app:showAsAction="ifRoom" />
 </menu>

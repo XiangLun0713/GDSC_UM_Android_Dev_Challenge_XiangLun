@@ -27,7 +27,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/app_bar_new_diary"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginTop="5dp">
 
         <LinearLayout
                 android:id="@+id/new_diary_linear_layout"
@@ -71,5 +72,19 @@
 
         </LinearLayout>
     </ScrollView>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/add_diary_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:indicatorColor="@color/mid_red"
+            app:indicatorSize="?attr/indicatorSize"
+            android:padding="10dp"
+            android:elevation="10dp"
+            android:background="@color/white"
+            android:layout_centerInParent="true"
+            android:indeterminateBehavior="cycle"
+            android:indeterminate="true"
+            android:visibility="invisible" />
 
 </RelativeLayout>

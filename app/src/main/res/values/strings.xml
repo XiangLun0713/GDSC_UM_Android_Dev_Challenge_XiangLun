@@ -17,4 +17,15 @@
     <string name="diary_hint">How was your day? :D</string>
     <string name="button_delete_button">Delete Image Button</string>
     <string name="image">Image</string>
+    <string name="save_diary">Save Diary</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="login">Login</string>
+    <string name="idiary_logo">Idiary Logo</string>
+    <string name="idiary_fancy_text">Idiary Fancy Text</string>
+    <string name="splash_screen_image_description">Background Image for the splash screen</string>
+    <string name="not_registered_label">Not registered yet?</string>
+    <string name="register_now_label">Register Now</string>
+    <string name="register">Register</string>
+    <string name="already_registered_label">Already registered?</string>
 </resources>
