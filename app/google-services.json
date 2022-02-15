@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1048791167871-sbou9juo1ih02454oagchklv5geac94k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "me.xianglun.idiary",
+            "certificate_hash": "2ac4f873f07fe21063597361254391a8155703fb"
+          }
+        },
+        {
           "client_id": "1048791167871-c0hj7jg7kopct21a9kq68965eaqab3ka.apps.googleusercontent.com",
           "client_type": 3
         }

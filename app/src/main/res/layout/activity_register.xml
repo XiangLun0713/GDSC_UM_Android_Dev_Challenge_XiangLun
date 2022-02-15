@@ -9,7 +9,7 @@
 
     <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="220dp"
+            android:layout_height="190dp"
             app:cardBackgroundColor="@color/dark_blue"
             android:translationZ="-10dp"
             app:cardCornerRadius="60dp" />
@@ -25,7 +25,7 @@
             android:layout_width="200dp"
             android:layout_height="200dp"
             app:cardCornerRadius="100dp"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="50dp"
             android:elevation="5dp"
             android:layout_centerHorizontal="true">
 
@@ -59,6 +59,7 @@
             android:layout_height="wrap_content"
             app:startIconDrawable="@drawable/ic_icon_lock"
             app:endIconMode="password_toggle"
+            app:errorEnabled="true"
             android:hint="@string/password"
             android:layout_below="@+id/register_email"
             android:layout_marginTop="10dp">
@@ -78,6 +79,7 @@
             android:layout_marginHorizontal="32dp"
             android:layout_below="@+id/register_card_view"
             android:hint="@string/email"
+            app:errorEnabled="true"
             app:endIconMode="clear_text"
             android:layout_marginTop="120dp"
             app:startIconDrawable="@drawable/ic_icon_email"

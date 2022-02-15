@@ -7,12 +7,24 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.Objects;
 
 public class IntroductoryActivity extends AppCompatActivity {
 
     ImageView backgroundImage;
     ConstraintLayout relativeLayout;
+    FirebaseAuth mAuth;
+    FirebaseUser currentUser;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,9 +36,12 @@ public class IntroductoryActivity extends AppCompatActivity {
         backgroundImage = findViewById(R.id.splash_screen_image);
 
         relativeLayout.animate().translationY(2000).setDuration(700).setStartDelay(2500).withEndAction(() -> {
-            // If the user had logged in before,
-            // Direct them to the main activity
-            Intent intent = new Intent(IntroductoryActivity.this, LoginActivity.class);
+            Intent intent;
+            if (currentUser != null) {
+                intent = new Intent(IntroductoryActivity.this, MainActivity.class);
+            } else {
+                intent = new Intent(IntroductoryActivity.this, LoginActivity.class);
+            }
             startActivity(intent);
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });

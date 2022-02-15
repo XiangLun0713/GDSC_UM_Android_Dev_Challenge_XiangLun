@@ -19,6 +19,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 import me.xianglun.idiary.databinding.ActivityMainBinding;
 
@@ -69,8 +70,7 @@ public class MainActivity extends AppCompatActivity {
             // TODO: 2/12/2022 forward the user to the setting activity
             Toast.makeText(this, "Opening Settings", Toast.LENGTH_SHORT).show();
         } else if (item.getItemId() == R.id.action_log_out) {
-            // TODO: 2/12/2022 Add log out code here
-            Toast.makeText(this, "Loging Out", Toast.LENGTH_SHORT).show();
+            logout();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -97,5 +97,12 @@ public class MainActivity extends AppCompatActivity {
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
         }
+    }
+
+    private void logout() {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 }
