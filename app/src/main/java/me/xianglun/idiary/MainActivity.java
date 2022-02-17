@@ -40,9 +40,9 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        setSupportActionBar(binding.appBarMain.toolbar);
+        setSupportActionBar(binding.appBarMain.mainToolbar);
 
-        binding.appBarMain.fab.setOnClickListener(view -> {
+        binding.appBarMain.mainFab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, NewDiaryActivity.class);
             startActivity(intent);
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
@@ -64,8 +64,6 @@ public class MainActivity extends AppCompatActivity {
         profileImage = findViewById(R.id.navigation_imageView);
         userName = findViewById(R.id.navigation_drawer_username);
         quotes = findViewById(R.id.navigation_quotes);
-
-
     }
 
     @Override

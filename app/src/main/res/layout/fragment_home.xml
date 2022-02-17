@@ -11,9 +11,41 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
+            app:layout_constraintVertical_bias=".4"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+    <RelativeLayout
+            android:id="@+id/home_animation_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/home_animation_view"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                android:layout_width="wrap_content"
+                android:layout_height="80dp"
+                android:scaleY="2.1"
+                android:scaleX="2.1"
+                app:lottie_rawRes="@raw/diary" />
+
+        <TextView
+                android:layout_marginTop="25dp"
+                android:layout_below="@id/home_animation_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_a_diary_now"
+                android:textSize="18sp"
+                android:layout_centerHorizontal="true" />
+
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

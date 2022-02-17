@@ -35,4 +35,5 @@
     <string name="navigation_greeting_text">Hi user!</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
+    <string name="add_a_diary_now">Add a diary now! :)</string>
 </resources>

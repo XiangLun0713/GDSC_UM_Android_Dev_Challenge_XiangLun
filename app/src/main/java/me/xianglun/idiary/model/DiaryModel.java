@@ -3,8 +3,8 @@ package me.xianglun.idiary.model;
 import java.util.List;
 
 public class DiaryModel {
-    private String date, time, title, diaryMainText, idaryId;
-    List<String> imageURL, texts;
+    private String date, time, title, diaryMainText, diaryId;
+    List<String> imagePaths, texts;
 
     public DiaryModel() {
     }
@@ -41,20 +41,20 @@ public class DiaryModel {
         this.diaryMainText = diaryMainText;
     }
 
-    public String getIdaryId() {
-        return idaryId;
+    public String getDiaryId() {
+        return diaryId;
     }
 
-    public void setIdaryId(String idaryId) {
-        this.idaryId = idaryId;
+    public void setDiaryId(String diaryId) {
+        this.diaryId = diaryId;
     }
 
-    public List<String> getImageURL() {
-        return imageURL;
+    public List<String> getImagePaths() {
+        return imagePaths;
     }
 
-    public void setImageURL(List<String> imageURL) {
-        this.imageURL = imageURL;
+    public void setImagePaths(List<String> imagePaths) {
+        this.imagePaths = imagePaths;
     }
 
     public List<String> getTexts() {

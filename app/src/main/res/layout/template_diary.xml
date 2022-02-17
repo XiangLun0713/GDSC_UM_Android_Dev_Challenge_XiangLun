@@ -69,7 +69,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/adapter_diary_date"
                 android:maxHeight="400dp"
-                android:scaleType="centerInside"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
                 android:visibility="invisible"
                 android:contentDescription="@string/diary_image" />
 

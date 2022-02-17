@@ -68,6 +68,7 @@ public class NewDiaryActivity extends AppCompatActivity {
     private LinearLayout linearLayout;
     private CircularProgressIndicator progressIndicator;
     private CardView progressCardView;
+    private TextView dateAndTimeLabel;
     private EditText titleText;
     private EditText diaryMainEditText;
     private DatabaseReference databaseReference;
@@ -90,7 +91,7 @@ public class NewDiaryActivity extends AppCompatActivity {
         progressIndicator = findViewById(R.id.add_diary_progress_bar);
         progressCardView = findViewById(R.id.progress_card_view);
         linearLayout = findViewById(R.id.new_diary_linear_layout);
-        TextView dateAndTimeLabel = findViewById(R.id.date_and_time_label);
+        dateAndTimeLabel = findViewById(R.id.date_and_time_label);
         titleText = findViewById(R.id.diary_title);
         diaryMainEditText = findViewById(R.id.diary_text);
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance("https://idiary-341301-default-rtdb.asia-southeast1.firebasedatabase.app");
@@ -124,16 +125,20 @@ public class NewDiaryActivity extends AppCompatActivity {
             return true;
 
         } else if (item.getItemId() == R.id.save_diary) {
-            if (firebaseUser != null) {
-                progressCardView.setVisibility(View.VISIBLE);
-                progressIndicator.setProgressCompat(500, true);
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                saveDiaryToDatabase(firebaseUser.getUid());
+            if (!titleText.getText().toString().isEmpty()) {
+                if (firebaseUser != null) {
+                    progressCardView.setVisibility(View.VISIBLE);
+                    getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    saveDiaryToDatabase(firebaseUser.getUid());
+                }
+            } else {
+                Toast.makeText(this, "You cannot save an empty diary", Toast.LENGTH_SHORT).show();
             }
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     private void saveDiaryToDatabase(String userId) {
         FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
@@ -180,7 +185,7 @@ public class NewDiaryActivity extends AppCompatActivity {
         }
 
         Tasks.whenAllComplete(storeImageOnDatabaseTaskList).addOnCompleteListener(task -> Tasks.whenAllComplete(getUriTaskList).addOnCompleteListener(task12 -> {
-            DatabaseReference diaryNode = databaseReference.child(userId).push();
+            DatabaseReference diaryNode = databaseReference.child("diaries").child(userId).push();
             String diaryNodeId = diaryNode.getKey();
             diaryMap.put("diaryId", diaryNodeId);
             diaryMap.put("imagePaths", imageList);
