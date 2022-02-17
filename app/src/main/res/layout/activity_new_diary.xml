@@ -73,6 +73,16 @@
         </LinearLayout>
     </ScrollView>
 
+<androidx.cardview.widget.CardView
+        android:id="@+id/progress_card_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@color/white"
+        app:cardCornerRadius="100dp"
+        android:elevation="10dp"
+        android:visibility="invisible">
+
     <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/add_diary_progress_bar"
             android:layout_width="wrap_content"
@@ -80,11 +90,11 @@
             app:indicatorColor="@color/mid_red"
             app:indicatorSize="?attr/indicatorSize"
             android:padding="10dp"
-            android:elevation="10dp"
-            android:background="@color/white"
-            android:layout_centerInParent="true"
+            android:background="@android:color/transparent"
             android:indeterminateBehavior="cycle"
             android:indeterminate="true"
-            android:visibility="invisible" />
+            android:visibility="visible" />
+
+</androidx.cardview.widget.CardView>
 
 </RelativeLayout>

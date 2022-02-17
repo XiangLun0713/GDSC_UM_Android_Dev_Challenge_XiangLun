@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginVertical="20dp"
+        android:layout_marginHorizontal="10dp"
+        android:elevation="10dp"
+        app:cardCornerRadius="15dp"
+        app:cardElevation="10dp">
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <TextView
+                android:id="@+id/adapter_diary_date"
+                android:layout_width="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:padding="15dp"
+                android:text="Wed, 16-Feb-2022"
+                android:textColor="@color/grey"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText"
+                android:layout_marginTop="0dp" />
+
+        <TextView
+                android:id="@+id/adepter_diary_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/adapter_diary_date"
+                android:layout_alignTop="@id/adapter_diary_date"
+                android:layout_alignBottom="@+id/adapter_diary_date"
+                android:paddingVertical="16dp"
+                android:text="06:37 PM"
+                android:textColor="@color/grey"
+                android:textSize="14sp"
+                android:textStyle="italic"
+                tools:ignore="HardcodedText"
+                android:layout_marginTop="0dp" />
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/adapter_diary_date"
+                android:background="@android:color/darker_gray" />
+
+        <ImageButton
+                android:id="@+id/adepter_diary_more_option_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_icon_more_vert"
+                android:background="@android:color/transparent"
+                android:padding="15dp"
+                android:layout_alignBottom="@+id/adapter_diary_date"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:contentDescription="@string/more_option_button"
+                app:tint="@color/grey" />
+
+        <ImageView
+                android:id="@+id/adapter_diary_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/adapter_diary_date"
+                android:maxHeight="400dp"
+                android:scaleType="centerInside"
+                android:visibility="invisible"
+                android:contentDescription="@string/diary_image" />
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/adapter_linear_layout_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/adapter_diary_image"
+                android:orientation="vertical">
+
+            <TextView
+                    android:id="@+id/adapter_diary_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="10dp"
+                    android:paddingHorizontal="15dp"
+                    android:text="Title"
+                    android:textSize="16sp"
+                    android:textColor="@color/grey"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+
+            <TextView
+                    android:id="@+id/adapter_diary_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="5"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="15dp"
+                    android:paddingHorizontal="15dp"
+                    android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                    android:textColor="@color/grey"
+                    tools:ignore="HardcodedText" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

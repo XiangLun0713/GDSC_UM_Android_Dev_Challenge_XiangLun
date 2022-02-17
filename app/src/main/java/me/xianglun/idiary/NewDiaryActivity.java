@@ -15,9 +15,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -32,15 +35,20 @@ import androidx.core.content.FileProvider;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Random;
@@ -52,15 +60,16 @@ public class NewDiaryActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST_CODE = 300;
     private static final int CAMERA_TAKE_IMAGE_CODE = 400;
 
+    private String date, time;
     private String currentPhotoPath;
     private LinearLayout linearLayout;
     private CircularProgressIndicator progressIndicator;
-    private FirebaseDatabase firebaseDatabase;
-    private FirebaseAuth firebaseAuth;
-    private DatabaseReference databaseReference;
+    private CardView progressCardView;
     private TextView dateAndTimeLabel;
     private EditText titleText;
     private EditText diaryMainEditText;
+    private DatabaseReference databaseReference;
+    private FirebaseUser firebaseUser;
 
     private String[] readStoragePermission;
     private String[] cameraPermission;
@@ -78,10 +87,15 @@ public class NewDiaryActivity extends AppCompatActivity {
         readStoragePermission = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
         cameraPermission = new String[]{Manifest.permission.CAMERA};
         progressIndicator = findViewById(R.id.add_diary_progress_bar);
+        progressCardView = findViewById(R.id.progress_card_view);
         linearLayout = findViewById(R.id.new_diary_linear_layout);
         dateAndTimeLabel = findViewById(R.id.date_and_time_label);
         titleText = findViewById(R.id.diary_title);
         diaryMainEditText = findViewById(R.id.diary_text);
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance("https://idiary-341301-default-rtdb.asia-southeast1.firebasedatabase.app");
+        databaseReference = firebaseDatabase.getReference();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
 
         // Configure the toolbar
         setSupportActionBar(findViewById(R.id.new_diary_toolbar));
@@ -94,8 +108,93 @@ public class NewDiaryActivity extends AppCompatActivity {
         SimpleDateFormat df = new SimpleDateFormat("E, dd-MMM-yyyy   hh:mm a", Locale.getDefault());
         String formattedDate = df.format(c);
         dateAndTimeLabel.setText(formattedDate);
+        df = new SimpleDateFormat("E, dd-MMM-yyyy", Locale.getDefault());
+        date = df.format(c);
+        df = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+        time = df.format(c);
         diaryMainEditText.setHint(hints[new Random().nextInt(hints.length)]);
         titleText.requestFocus();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.add_photo) {
+            displayImagePickerDialog();
+            return true;
+
+        } else if (item.getItemId() == R.id.save_diary) {
+            if (firebaseUser != null) {
+                progressCardView.setVisibility(View.VISIBLE);
+                progressIndicator.setProgressCompat(500, true);
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                saveDiaryToDatabase(firebaseUser.getUid());
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void saveDiaryToDatabase(String userId) {
+        FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+        StorageReference storageReference = firebaseStorage.getReference();
+
+        String title = titleText.getText().toString();
+        String diaryMainText = diaryMainEditText.getText().toString();
+        List<String> textList = new ArrayList<>();
+        List<String> imageList = new ArrayList<>();
+
+        HashMap<String, Object> diaryMap = new HashMap<>();
+        diaryMap.put("time", time);
+        diaryMap.put("date", date);
+        diaryMap.put("title", title);
+        diaryMap.put("diaryMainText", diaryMainText);
+
+        for (int i = 3; i < linearLayout.getChildCount(); i += 2) {
+            if (linearLayout.getChildAt(i) instanceof RelativeLayout) {
+                RelativeLayout relativeLayout = (RelativeLayout) linearLayout.getChildAt(i);
+                ImageView image = relativeLayout.findViewById(R.id.diary_image);
+                if (image.getTag() instanceof Uri) {
+                    Uri uri = (Uri) image.getTag();
+                    storageReference.child(userId).child(uri.getLastPathSegment()).putFile(uri).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Objects.requireNonNull(Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getMetadata()).getReference()).getDownloadUrl().addOnCompleteListener(task1 -> {
+                                if (task1.isSuccessful()) {
+                                    String imageURL = Objects.requireNonNull(task1.getResult()).toString();
+                                    System.out.println("Image Url: " + imageURL);
+                                    imageList.add(imageURL);
+                                }
+                            }).addOnFailureListener(e -> Toast.makeText(NewDiaryActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show());
+                        }
+                    }).addOnFailureListener(e -> Toast.makeText(NewDiaryActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show());
+                }
+            }
+            if (linearLayout.getChildAt(i + 1) instanceof EditText) {
+                EditText text = (EditText) linearLayout.getChildAt(i + 1);
+                textList.add(text.getText().toString());
+            }
+        }
+
+        DatabaseReference diaryNode = databaseReference.child(userId).push();
+        String diaryNodeId = diaryNode.getKey();
+        diaryMap.put("diaryId", diaryNodeId);
+        System.out.println("List: " + imageList);
+        diaryMap.put("imagePaths", imageList);
+        diaryMap.put("texts", textList);
+
+        diaryNode.updateChildren(diaryMap).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                progressCardView.setVisibility(View.INVISIBLE);
+                Toast.makeText(NewDiaryActivity.this, "Diary added successfully", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(NewDiaryActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                finish();
+            }
+        }).addOnFailureListener(e -> {
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        });
     }
 
     @Override
@@ -115,39 +214,6 @@ public class NewDiaryActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.new_diary_toolbar_menu, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.add_photo) {
-            displayImagePickerDialog();
-            return true;
-        } else if (item.getItemId() == R.id.save_diary) {
-            // TODO: 2/15/2022 save diary to firebase
-/*
-            firebaseAuth = FirebaseAuth.getInstance();
-            firebaseDatabase = FirebaseDatabase.getInstance("https://idiary-341301-default-rtdb.asia-southeast1.firebasedatabase.app");
-            databaseReference = firebaseDatabase.getReference();
-            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-
-            String dateAndTime = dateAndTimeLabel.getText().toString();
-            String title = titleText.getText().toString();
-            String diaryMainText = diaryMainEditText.getText().toString();
-
-            if (firebaseUser != null) {
-                progressIndicator.setVisibility(View.VISIBLE);
-                progressIndicator.setProgressCompat(500,true);
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            }
-            saveDiaryToDatabase();
-            System.out.println("saved");
-            return true;*/
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void saveDiaryToDatabase() {
-
     }
 
     private void displayImagePickerDialog() {
@@ -200,7 +266,6 @@ public class NewDiaryActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        System.out.println(Arrays.toString(grantResults));
         if (requestCode == READ_STORAGE_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 pickImageFromGallery();
@@ -258,7 +323,6 @@ public class NewDiaryActivity extends AppCompatActivity {
 
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                System.out.println("image created");
                 Uri photoURI = FileProvider.getUriForFile(this,
                         "me.xianglun.idiary.fileprovider",
                         photoFile);
@@ -275,6 +339,7 @@ public class NewDiaryActivity extends AppCompatActivity {
         View template = getLayoutInflater().inflate(R.layout.template_diary_image, linearLayout, false);
         ImageView image = template.findViewById(R.id.diary_image);
         image.setImageURI(data);
+        image.setTag(data);
         FloatingActionButton deleteBtn = template.findViewById(R.id.delete_button);
         deleteBtn.setOnClickListener(v -> {
             ViewParent parent = deleteBtn.getParent();
@@ -291,9 +356,7 @@ public class NewDiaryActivity extends AppCompatActivity {
                 editTextBeforeImage.requestFocus();
                 ((EditText) editTextBeforeImage).setSelection(((EditText) editTextBeforeImage).getText().length());
             }
-            if (parent != null) {
-                linearLayout.removeView((View) parent);
-            }
+            linearLayout.removeView((View) parent);
         });
         linearLayout.addView(template, linearParams);
 

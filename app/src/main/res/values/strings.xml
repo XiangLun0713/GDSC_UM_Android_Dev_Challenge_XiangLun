@@ -28,4 +28,9 @@
     <string name="register_now_label">Register Now</string>
     <string name="register">Register</string>
     <string name="already_registered_label">Already registered?</string>
+    <string name="more_option_button">More option button</string>
+    <string name="diary_image">Diary Image</string>
+    <string name="profile_image">Profile Image</string>
+    <string name="navigation_instruction">Set up your profile in the profile section!</string>
+    <string name="navigation_greeting_text">Hi user!</string>
 </resources>
