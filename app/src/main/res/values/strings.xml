@@ -10,7 +10,7 @@
 
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_profile">Profile</string>
     <string name="button_add_diary">Add Diary Button</string>
     <string name="add_a_photo">Add a photo</string>
     <string name="label_title">Title</string>
@@ -33,4 +33,6 @@
     <string name="profile_image">Profile Image</string>
     <string name="navigation_instruction">Set up your profile in the profile section!</string>
     <string name="navigation_greeting_text">Hi user!</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
 </resources>

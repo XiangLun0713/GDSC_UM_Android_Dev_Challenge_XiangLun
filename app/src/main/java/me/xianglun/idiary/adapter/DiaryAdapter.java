@@ -3,12 +3,13 @@ package me.xianglun.idiary.adapter;
 import android.content.Context;
 import android.net.Uri;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,11 +43,12 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
         holder.diaryMainText.setText(diary.getDiaryMainText());
         holder.time.setText(diary.getTime());
         holder.date.setText(diary.getDate());
-        holder.moreOptionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(context, "It works!", Toast.LENGTH_SHORT).show();
-            }
+        holder.moreOptionButton.setOnClickListener(v -> {
+            // TODO: 2/17/2022 check whether these code works after implements the recycler view
+            PopupMenu popup = new PopupMenu(context, v);
+            MenuInflater inflater = popup.getMenuInflater();
+            inflater.inflate(R.menu.diary_menu, popup.getMenu());
+            popup.show();
         });
         if (diary.getImageURL().size() > 0) {
             if (diary.getImageURL().get(0) != null) {

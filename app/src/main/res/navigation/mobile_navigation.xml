@@ -18,8 +18,8 @@
             tools:layout="@layout/fragment_gallery" />
 
     <fragment
-            android:id="@+id/nav_slideshow"
-            android:name="me.xianglun.idiary.ui.slideshow.SlideshowFragment"
-            android:label="@string/menu_slideshow"
-            tools:layout="@layout/fragment_slideshow" />
+            android:id="@+id/nav_profile"
+            android:name="me.xianglun.idiary.ui.profile.ProfileFragment"
+            android:label="@string/menu_profile"
+            tools:layout="@layout/fragment_profile" />
 </navigation>

@@ -32,6 +32,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,6 +42,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,7 +68,6 @@ public class NewDiaryActivity extends AppCompatActivity {
     private LinearLayout linearLayout;
     private CircularProgressIndicator progressIndicator;
     private CardView progressCardView;
-    private TextView dateAndTimeLabel;
     private EditText titleText;
     private EditText diaryMainEditText;
     private DatabaseReference databaseReference;
@@ -75,8 +77,7 @@ public class NewDiaryActivity extends AppCompatActivity {
     private String[] cameraPermission;
     private final String[] hints = {"How was your day?", "What's in your mind?",
             "What was the best part of your day?", "How are you feeling today?",
-            "Did you learn anything new today?", "What are you most proud of today?",
-            "Did you get the chance to help anyone today?"};
+            "Did you learn anything new today?", "What are you most proud of today?"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +90,7 @@ public class NewDiaryActivity extends AppCompatActivity {
         progressIndicator = findViewById(R.id.add_diary_progress_bar);
         progressCardView = findViewById(R.id.progress_card_view);
         linearLayout = findViewById(R.id.new_diary_linear_layout);
-        dateAndTimeLabel = findViewById(R.id.date_and_time_label);
+        TextView dateAndTimeLabel = findViewById(R.id.date_and_time_label);
         titleText = findViewById(R.id.diary_title);
         diaryMainEditText = findViewById(R.id.diary_text);
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance("https://idiary-341301-default-rtdb.asia-southeast1.firebasedatabase.app");
@@ -149,23 +150,27 @@ public class NewDiaryActivity extends AppCompatActivity {
         diaryMap.put("title", title);
         diaryMap.put("diaryMainText", diaryMainText);
 
+        List<Task<UploadTask.TaskSnapshot>> storeImageOnDatabaseTaskList = new ArrayList<>();
+        List<Task<Uri>> getUriTaskList = new ArrayList<>();
+
         for (int i = 3; i < linearLayout.getChildCount(); i += 2) {
             if (linearLayout.getChildAt(i) instanceof RelativeLayout) {
                 RelativeLayout relativeLayout = (RelativeLayout) linearLayout.getChildAt(i);
                 ImageView image = relativeLayout.findViewById(R.id.diary_image);
                 if (image.getTag() instanceof Uri) {
                     Uri uri = (Uri) image.getTag();
-                    storageReference.child(userId).child(uri.getLastPathSegment()).putFile(uri).addOnCompleteListener(task -> {
+                    Task<UploadTask.TaskSnapshot> storeImageOnDatabaseTask = storageReference.child(userId).child(uri.getLastPathSegment()).putFile(uri).addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Objects.requireNonNull(Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getMetadata()).getReference()).getDownloadUrl().addOnCompleteListener(task1 -> {
+                            Task<Uri> getUriTask = Objects.requireNonNull(Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getMetadata()).getReference()).getDownloadUrl().addOnCompleteListener(task1 -> {
                                 if (task1.isSuccessful()) {
                                     String imageURL = Objects.requireNonNull(task1.getResult()).toString();
-                                    System.out.println("Image Url: " + imageURL);
                                     imageList.add(imageURL);
                                 }
                             }).addOnFailureListener(e -> Toast.makeText(NewDiaryActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show());
+                            getUriTaskList.add(getUriTask);
                         }
                     }).addOnFailureListener(e -> Toast.makeText(NewDiaryActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show());
+                    storeImageOnDatabaseTaskList.add(storeImageOnDatabaseTask);
                 }
             }
             if (linearLayout.getChildAt(i + 1) instanceof EditText) {
@@ -174,27 +179,30 @@ public class NewDiaryActivity extends AppCompatActivity {
             }
         }
 
-        DatabaseReference diaryNode = databaseReference.child(userId).push();
-        String diaryNodeId = diaryNode.getKey();
-        diaryMap.put("diaryId", diaryNodeId);
-        System.out.println("List: " + imageList);
-        diaryMap.put("imagePaths", imageList);
-        diaryMap.put("texts", textList);
+        Tasks.whenAllComplete(storeImageOnDatabaseTaskList).addOnCompleteListener(task -> Tasks.whenAllComplete(getUriTaskList).addOnCompleteListener(task12 -> {
+            DatabaseReference diaryNode = databaseReference.child(userId).push();
+            String diaryNodeId = diaryNode.getKey();
+            diaryMap.put("diaryId", diaryNodeId);
+            diaryMap.put("imagePaths", imageList);
+            diaryMap.put("texts", textList);
 
-        diaryNode.updateChildren(diaryMap).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                progressCardView.setVisibility(View.INVISIBLE);
-                Toast.makeText(NewDiaryActivity.this, "Diary added successfully", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(NewDiaryActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-                finish();
-            }
-        }).addOnFailureListener(e -> {
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-        });
+            diaryNode.updateChildren(diaryMap).addOnCompleteListener(voidTask -> {
+                if (voidTask.isSuccessful()) {
+                    progressCardView.setVisibility(View.INVISIBLE);
+                    Toast.makeText(NewDiaryActivity.this, "Diary added successfully", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(NewDiaryActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                    finish();
+                }
+            }).addOnFailureListener(e -> {
+                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            });
+        }));
+
+
     }
 
     @Override
@@ -362,6 +370,7 @@ public class NewDiaryActivity extends AppCompatActivity {
 
         //add a new edit text view after the image
         EditText newEditText = new EditText(this);
+        newEditText.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
         newEditText.setHint("Tell us more!");
         newEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
         newEditText.setBackgroundColor(Color.TRANSPARENT);
