@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,10 +21,18 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import me.xianglun.idiary.databinding.ActivityMainBinding;
+import me.xianglun.idiary.model.UserModel;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,6 +56,12 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
+
+        LinearLayout layout = (LinearLayout) binding.navView.getHeaderView(0);
+        profileImage = layout.findViewById(R.id.navigation_imageView);
+        userName = layout.findViewById(R.id.navigation_drawer_username);
+        quotes = layout.findViewById(R.id.navigation_quotes);
+
         drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
         // Passing each menu ID as a set of Ids because each
@@ -55,14 +70,32 @@ public class MainActivity extends AppCompatActivity {
                 R.id.nav_home, R.id.nav_gallery)
                 .setOpenableLayout(drawer)
                 .build();
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        // TODO: 2/17/2022 instantiate these view by using data from database
-        profileImage = findViewById(R.id.navigation_imageView);
-        userName = findViewById(R.id.navigation_drawer_username);
-        quotes = findViewById(R.id.navigation_quotes);
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            DatabaseReference currentUserNode = FirebaseDatabase.getInstance().getReference().child("users").child(currentUser.getUid());
+            currentUserNode.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    UserModel user = snapshot.getValue(UserModel.class);
+                    if (user != null) {
+                        if (user.getUsername() != null) userName.setText(user.getUsername());
+                        if (user.getStatus() != null) quotes.setText(user.getStatus());
+                        if (user.getImagePath() != null)
+                            Glide.with(MainActivity.this).load(user.getImagePath()).into(profileImage);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
     }
 
     @Override

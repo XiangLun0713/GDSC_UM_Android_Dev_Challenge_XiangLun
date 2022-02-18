@@ -43,8 +43,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:id="@+id/profile_pic_card_view">
 
-        <ImageButton
-                android:id="@+id/profile_pic_button"
+        <ImageView
+                android:id="@+id/profile_pic_image_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@mipmap/ic_launcher"
@@ -91,5 +91,33 @@
             app:layout_constraintTop_toBottomOf="@+id/profile_username"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.cardview.widget.CardView
+            android:id="@+id/profile_progress_card_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@color/white"
+            app:cardCornerRadius="100dp"
+            android:elevation="10dp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/profile_progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:indicatorColor="@color/mid_red"
+                app:indicatorSize="?attr/indicatorSize"
+                android:padding="10dp"
+                android:background="@android:color/transparent"
+                android:indeterminateBehavior="cycle"
+                android:indeterminate="true"
+                android:visibility="visible" />
+
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

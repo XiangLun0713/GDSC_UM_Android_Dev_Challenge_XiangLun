@@ -80,7 +80,6 @@ public class HomeFragment extends Fragment {
                         diaryArrayList.add(diary);
                     }
                 } else {
-                    System.out.println("called");
                     if (binding != null) {
                         binding.homeAnimationLayout.setVisibility(View.VISIBLE);
                     }

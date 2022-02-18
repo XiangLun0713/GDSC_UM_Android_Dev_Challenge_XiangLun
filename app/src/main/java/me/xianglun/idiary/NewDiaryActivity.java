@@ -106,7 +106,6 @@ public class NewDiaryActivity extends AppCompatActivity {
         textList = new ArrayList<>();
         imageList = new ArrayList<>();
 
-
         if (intent.getStringExtra("diaryId") == null) {
             // Configure the toolbar
             setSupportActionBar(findViewById(R.id.new_diary_toolbar));

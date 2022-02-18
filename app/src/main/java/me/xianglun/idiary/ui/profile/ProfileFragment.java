@@ -1,20 +1,32 @@
 package me.xianglun.idiary.ui.profile;
 
+import static android.app.Activity.RESULT_OK;
+
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -22,8 +34,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 import me.xianglun.idiary.R;
 import me.xianglun.idiary.databinding.FragmentProfileBinding;
@@ -31,11 +46,18 @@ import me.xianglun.idiary.model.UserModel;
 
 public class ProfileFragment extends Fragment {
 
+    private static final int READ_STORAGE_REQUEST_CODE = 100;
+    private static final int GALLERY_PICK_IMAGE_CODE = 200;
+
     private FragmentProfileBinding binding;
     private Context context;
-    private ImageButton profilePicBtn;
+    private ImageView profilePic;
+    private String profilePicPath;
     private TextView usernameTextView, statusTextView;
-    DatabaseReference currentUserNode;
+    private DatabaseReference currentUserNode;
+    private CardView progressCardView;
+
+    private String[] readStoragePermission;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,9 +65,11 @@ public class ProfileFragment extends Fragment {
         View root = binding.getRoot();
         context = getActivity();
 
-        profilePicBtn = binding.profilePicButton;
+        readStoragePermission = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
+        profilePic = binding.profilePicImageView;
         usernameTextView = binding.profileUsername;
         statusTextView = binding.profileStatus;
+        progressCardView = binding.profileProgressCardView;
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -92,6 +116,14 @@ public class ProfileFragment extends Fragment {
             builder.show();
         });
 
+        profilePic.setOnClickListener(v -> {
+            if (!checkReadStoragePermission()) {
+                requestReadStoragePermission();
+            } else {
+                pickImageFromGallery();
+            }
+        });
+
         return root;
     }
 
@@ -102,8 +134,11 @@ public class ProfileFragment extends Fragment {
                 if (snapshot.exists()) {
                     UserModel user = snapshot.getValue(UserModel.class);
                     if (user != null) {
-                        usernameTextView.setText(user.getUsername());
-                        statusTextView.setText(user.getStatus());
+                        if (user.getUsername() != null)
+                            usernameTextView.setText(user.getUsername());
+                        if (user.getStatus() != null) statusTextView.setText(user.getStatus());
+                        if (user.getImagePath() != null)
+                            Glide.with(context).load(user.getImagePath()).into(profilePic);
                     }
 
                 }
@@ -122,7 +157,57 @@ public class ProfileFragment extends Fragment {
         binding = null;
     }
 
-    public int convertDpToPx(Context context, float dp) {
-        return (int) (dp * context.getResources().getDisplayMetrics().density);
+    private void requestReadStoragePermission() {
+        requestPermissions(readStoragePermission, READ_STORAGE_REQUEST_CODE);
+    }
+
+    private void pickImageFromGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, GALLERY_PICK_IMAGE_CODE);
+    }
+
+    private boolean checkReadStoragePermission() {
+        return (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == READ_STORAGE_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                pickImageFromGallery();
+            }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == GALLERY_PICK_IMAGE_CODE && resultCode == RESULT_OK) {
+            if (data != null) {
+                progressCardView.setVisibility(View.VISIBLE);
+                FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+                StorageReference storageReference = firebaseStorage.getReference();
+                requireActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                Uri uri = data.getData();
+                storageReference.child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).child(uri.getLastPathSegment()).putFile(uri).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Objects.requireNonNull(Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getMetadata()).getReference()).getDownloadUrl().addOnCompleteListener(task1 -> {
+                            if (task1.isSuccessful()) {
+                                profilePicPath = Objects.requireNonNull(task1.getResult()).toString();
+                                HashMap<String, Object> hashMap = new HashMap<>();
+                                hashMap.put("imagePath", profilePicPath);
+                                currentUserNode.updateChildren(hashMap);
+                                requireActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                                progressCardView.setVisibility(View.INVISIBLE);
+                                Toast.makeText(context, "Profile profile saved", Toast.LENGTH_SHORT).show();
+                            }
+                        }).addOnFailureListener(e -> Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show());
+                    }
+                });
+            }
+        }
     }
 }

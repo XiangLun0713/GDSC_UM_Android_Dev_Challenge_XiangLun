@@ -36,6 +36,6 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="add_a_diary_now">Add a diary now! :)</string>
-    <string name="profile_status_instruction">Write your status here! :D</string>
+    <string name="profile_status_instruction">Write your status/quotes here! :D</string>
     <string name="username">Username</string>
 </resources>
