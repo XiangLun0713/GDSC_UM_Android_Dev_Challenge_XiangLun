@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -56,11 +57,19 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
         holder.diaryMainText.setText(diary.getDiaryMainText());
         holder.time.setText(diary.getTime());
         holder.date.setText(diary.getDate());
-        holder.deleteButton.setOnClickListener(v -> deleteDiaryRecord(diary.getDiaryId()));
+        holder.deleteButton.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AlertDialogTheme);
+            builder.setTitle("Delete Diary");
+            builder.setMessage("Are you sure you want to delete this diary?");
+            builder.setPositiveButton("Delete", (dialog, id) -> deleteDiaryRecord(diary.getDiaryId()));
+            builder.setNegativeButton(android.R.string.cancel, (dialog, id) -> {
+            });
+            builder.show();
+        });
         if (diary.getImagePaths() != null && diary.getImagePaths().size() > 0) {
             if (!diary.getImagePaths().get(0).isEmpty()) {
-                Glide.with(context).load(diary.getImagePaths().get(0)).into(holder.imageView);
                 holder.imageView.setVisibility(View.VISIBLE);
+                Glide.with(context).load(diary.getImagePaths().get(0)).into(holder.imageView);
             }
         }
     }

@@ -202,14 +202,14 @@ public class NewDiaryActivity extends AppCompatActivity {
             return true;
 
         } else if (item.getItemId() == R.id.save_diary) {
-            if (!titleText.getText().toString().isEmpty()) {
+            if (!titleText.getText().toString().isEmpty() && !diaryMainEditText.getText().toString().isEmpty()) {
                 if (firebaseUser != null) {
                     progressCardView.setVisibility(View.VISIBLE);
                     getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     saveDiaryToDatabase(firebaseUser.getUid());
                 }
             } else {
-                Toast.makeText(this, "You cannot save an empty diary", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please enter the title and some texts", Toast.LENGTH_SHORT).show();
             }
             return true;
         }
@@ -300,21 +300,26 @@ public class NewDiaryActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (diaryId == null) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
-            builder.setTitle("Discard Diary?");
-            builder.setMessage("Are you sure you want to quit writing this diary?");
-            builder.setPositiveButton("Discard", (dialog, id) -> {
+            if (!titleText.getText().toString().isEmpty() || !diaryMainEditText.getText().toString().isEmpty()) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
+                builder.setTitle("Discard Diary");
+                builder.setMessage("Are you sure you want to quit writing this diary?");
+                builder.setPositiveButton("Discard", (dialog, id) -> {
+                    NewDiaryActivity.super.onBackPressed();
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                });
+                builder.setNegativeButton(android.R.string.cancel, (dialog, id) -> {
+                });
+                builder.show();
+            } else {
                 NewDiaryActivity.super.onBackPressed();
                 overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-            });
-            builder.setNegativeButton(android.R.string.cancel, (dialog, id) -> {
-            });
-            builder.show();
+            }
 
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
-            builder.setTitle("Save Changes?");
-            builder.setMessage("Do you want to save this diary?");
+            builder.setTitle("Save Changes");
+            builder.setMessage("Do you want to save your changes to this diary?");
             builder.setPositiveButton("Save", (dialog, id) -> {
                 if (firebaseUser != null) {
                     progressCardView.setVisibility(View.VISIBLE);
