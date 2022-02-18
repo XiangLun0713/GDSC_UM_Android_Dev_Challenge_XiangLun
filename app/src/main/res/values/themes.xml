@@ -14,8 +14,12 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="colorPrimary">@color/mid_red</item>
+    </style>
+
     <style name="MyTextInputLayout_overlay">
-        <item name="colorPrimary">@android:color/background_dark</item>
+        <item name="colorPrimary">@color/grey</item>
     </style>
 
     <style name="Theme.Idiary.NoActionBar">
@@ -24,6 +28,5 @@
     </style>
 
     <style name="Theme.Idiary.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
     <style name="Theme.Idiary.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

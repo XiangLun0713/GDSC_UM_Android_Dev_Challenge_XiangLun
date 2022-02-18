@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -143,7 +142,6 @@ public class NewDiaryActivity extends AppCompatActivity {
             String dateAndTime = date + "   " + time;
             imageList = intent.getStringArrayListExtra("imagePaths");
             textList = intent.getStringArrayListExtra("texts");
-            Log.d("image list", imageList.toString());
 
             // set data accordingly
             dateAndTimeLabel.setText(dateAndTime);
@@ -151,46 +149,48 @@ public class NewDiaryActivity extends AppCompatActivity {
             diaryMainEditText.setText(mainText);
 
             // generate previous images and texts
-            for (int i = 0; i < imageList.size(); i++) {
-                LinearLayout.LayoutParams linearParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                linearParams.setMargins(convertDpToPx(getApplicationContext(), 10), convertDpToPx(getApplicationContext(), 5), convertDpToPx(getApplicationContext(), 10), convertDpToPx(getApplicationContext(), 5));
+            if (imageList != null) {
+                for (int i = 0; i < imageList.size(); i++) {
+                    LinearLayout.LayoutParams linearParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    linearParams.setMargins(convertDpToPx(getApplicationContext(), 10), convertDpToPx(getApplicationContext(), 5), convertDpToPx(getApplicationContext(), 10), convertDpToPx(getApplicationContext(), 5));
 
-                View template = getLayoutInflater().inflate(R.layout.template_diary_image, linearLayout, false);
-                ImageView image = template.findViewById(R.id.diary_image);
-                Glide.with(this).load(imageList.get(i)).into(image);
-                FloatingActionButton deleteBtn = template.findViewById(R.id.delete_button);
+                    View template = getLayoutInflater().inflate(R.layout.template_diary_image, linearLayout, false);
+                    ImageView image = template.findViewById(R.id.diary_image);
+                    Glide.with(this).load(imageList.get(i)).into(image);
+                    FloatingActionButton deleteBtn = template.findViewById(R.id.delete_button);
 
-                deleteBtn.setTag(String.valueOf(i));
-                deleteBtn.setOnClickListener(v -> {
-                    ViewParent parent = deleteBtn.getParent();
-                    int parentIndex = linearLayout.indexOfChild((View) parent);
-                    View editTextAfterImage = linearLayout.getChildAt(parentIndex + 1);
-                    View editTextBeforeImage = linearLayout.getChildAt(parentIndex - 1);
-                    if (editTextAfterImage instanceof EditText && editTextBeforeImage instanceof EditText) {
-                        if (((EditText) editTextBeforeImage).getText().toString().isEmpty() && !((EditText) editTextAfterImage).getText().toString().isEmpty()) {
-                            ((EditText) editTextBeforeImage).setText(((EditText) editTextAfterImage).getText().toString());
-                        } else if (!((EditText) editTextBeforeImage).getText().toString().isEmpty() && !((EditText) editTextAfterImage).getText().toString().isEmpty()) {
-                            ((EditText) editTextBeforeImage).setText(((EditText) editTextBeforeImage).getText().toString().concat("\n").concat(((EditText) editTextAfterImage).getText().toString()));
+                    deleteBtn.setTag(String.valueOf(i));
+                    deleteBtn.setOnClickListener(v -> {
+                        ViewParent parent = deleteBtn.getParent();
+                        int parentIndex = linearLayout.indexOfChild((View) parent);
+                        View editTextAfterImage = linearLayout.getChildAt(parentIndex + 1);
+                        View editTextBeforeImage = linearLayout.getChildAt(parentIndex - 1);
+                        if (editTextAfterImage instanceof EditText && editTextBeforeImage instanceof EditText) {
+                            if (((EditText) editTextBeforeImage).getText().toString().isEmpty() && !((EditText) editTextAfterImage).getText().toString().isEmpty()) {
+                                ((EditText) editTextBeforeImage).setText(((EditText) editTextAfterImage).getText().toString());
+                            } else if (!((EditText) editTextBeforeImage).getText().toString().isEmpty() && !((EditText) editTextAfterImage).getText().toString().isEmpty()) {
+                                ((EditText) editTextBeforeImage).setText(((EditText) editTextBeforeImage).getText().toString().concat("\n").concat(((EditText) editTextAfterImage).getText().toString()));
+                            }
+                            linearLayout.removeView(editTextAfterImage);
+                            editTextBeforeImage.requestFocus();
+                            ((EditText) editTextBeforeImage).setSelection(((EditText) editTextBeforeImage).getText().length());
                         }
-                        linearLayout.removeView(editTextAfterImage);
-                        editTextBeforeImage.requestFocus();
-                        ((EditText) editTextBeforeImage).setSelection(((EditText) editTextBeforeImage).getText().length());
-                    }
-                    imageList.remove(Integer.parseInt((String) deleteBtn.getTag()));
-                    Log.d("Track removal", "remove at index " + Integer.parseInt((String) deleteBtn.getTag()));
-                    linearLayout.removeView((View) parent);
-                });
-                linearLayout.addView(template, linearParams);
+                        imageList.remove(Integer.parseInt((String) deleteBtn.getTag()));
+                        linearLayout.removeView((View) parent);
+                    });
+                    linearLayout.addView(template, linearParams);
 
-                //add a new edit text view after the image
-                EditText newEditText = new EditText(this);
-                newEditText.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-                newEditText.setText(textList.get(i));
-                newEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-                newEditText.setBackgroundColor(Color.TRANSPARENT);
-                newEditText.setLineSpacing(convertDpToPx(this, 8), 1);
-                linearLayout.addView(newEditText, linearParams);
+                    //add a new edit text view after the image
+                    EditText newEditText = new EditText(this);
+                    newEditText.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                    newEditText.setText(textList.get(i));
+                    newEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                    newEditText.setBackgroundColor(Color.TRANSPARENT);
+                    newEditText.setLineSpacing(convertDpToPx(this, 8), 1);
+                    linearLayout.addView(newEditText, linearParams);
+                }
             }
+
         }
         textList = new ArrayList<>();
     }
@@ -243,7 +243,6 @@ public class NewDiaryActivity extends AppCompatActivity {
                                 if (task1.isSuccessful()) {
                                     String imageURL = Objects.requireNonNull(task1.getResult()).toString();
                                     imageList.add(imageURL);
-                                    Log.d("added image", imageURL);
                                 }
                             }).addOnFailureListener(e -> Toast.makeText(NewDiaryActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show());
                             getUriTaskList.add(getUriTask);
@@ -272,12 +271,11 @@ public class NewDiaryActivity extends AppCompatActivity {
             }
             diaryMap.put("imagePaths", imageList);
             diaryMap.put("texts", textList);
-            Log.d("image list saved", imageList.toString());
 
             diaryNode.updateChildren(diaryMap).addOnCompleteListener(voidTask -> {
                 if (voidTask.isSuccessful()) {
                     progressCardView.setVisibility(View.INVISIBLE);
-                    Toast.makeText(NewDiaryActivity.this, "Diary added successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(NewDiaryActivity.this, "Diary saved", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(NewDiaryActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
@@ -301,8 +299,37 @@ public class NewDiaryActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+        if (diaryId == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
+            builder.setTitle("Discard Diary?");
+            builder.setMessage("Are you sure you want to quit writing this diary?");
+            builder.setPositiveButton("Discard", (dialog, id) -> {
+                NewDiaryActivity.super.onBackPressed();
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+            });
+            builder.setNegativeButton(android.R.string.cancel, (dialog, id) -> {
+            });
+            builder.show();
+
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
+            builder.setTitle("Save Changes?");
+            builder.setMessage("Do you want to save this diary?");
+            builder.setPositiveButton("Save", (dialog, id) -> {
+                if (firebaseUser != null) {
+                    progressCardView.setVisibility(View.VISIBLE);
+                    getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    saveDiaryToDatabase(firebaseUser.getUid());
+                }
+            });
+            builder.setNegativeButton(android.R.string.cancel, (dialog, id) -> {
+            });
+            builder.setNeutralButton("Discard", (dialog, id) -> {
+                NewDiaryActivity.super.onBackPressed();
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+            });
+            builder.show();
+        }
     }
 
     @Override

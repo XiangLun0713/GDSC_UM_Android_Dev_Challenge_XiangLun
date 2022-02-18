@@ -56,22 +56,18 @@ public class HomeFragment extends Fragment {
         ArrayList<DiaryModel> diaryArrayList = new ArrayList<>();
         DiaryAdapter diaryAdapter = new DiaryAdapter(context, diaryArrayList);
         recyclerView.setAdapter(diaryAdapter);
-        diaryAdapter.setOnItemClickListener(new DiaryAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(int position) {
-                // TODO: 2/17/2022 open targeted view diary layout page
-                DiaryModel diary = diaryArrayList.get(position);
-                Intent intent = new Intent(context, NewDiaryActivity.class);
-                intent.putExtra("diaryId", diary.getDiaryId());
-                intent.putExtra("title", diary.getTitle());
-                intent.putExtra("mainText", diary.getDiaryMainText());
-                intent.putExtra("date", diary.getDate());
-                intent.putExtra("time", diary.getTime());
-                intent.putStringArrayListExtra("imagePaths", (ArrayList<String>) diary.getImagePaths());
-                intent.putStringArrayListExtra("texts", (ArrayList<String>) diary.getTexts());
-                startActivity(intent);
-                requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-            }
+        diaryAdapter.setOnItemClickListener(position -> {
+            DiaryModel diary = diaryArrayList.get(position);
+            Intent intent = new Intent(context, NewDiaryActivity.class);
+            intent.putExtra("diaryId", diary.getDiaryId());
+            intent.putExtra("title", diary.getTitle());
+            intent.putExtra("mainText", diary.getDiaryMainText());
+            intent.putExtra("date", diary.getDate());
+            intent.putExtra("time", diary.getTime());
+            intent.putStringArrayListExtra("imagePaths", (ArrayList<String>) diary.getImagePaths());
+            intent.putStringArrayListExtra("texts", (ArrayList<String>) diary.getTexts());
+            startActivity(intent);
+            requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         databaseReference.child("diaries").child(uid).addValueEventListener(new ValueEventListener() {
@@ -84,7 +80,10 @@ public class HomeFragment extends Fragment {
                         diaryArrayList.add(diary);
                     }
                 } else {
-                    binding.homeAnimationLayout.setVisibility(View.VISIBLE);
+                    System.out.println("called");
+                    if (binding != null) {
+                        binding.homeAnimationLayout.setVisibility(View.VISIBLE);
+                    }
                 }
                 diaryAdapter.notifyDataSetChanged();
             }

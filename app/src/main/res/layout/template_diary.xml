@@ -51,16 +51,16 @@
                 android:background="@android:color/darker_gray" />
 
         <ImageButton
-                android:id="@+id/adepter_diary_more_option_button"
+                android:id="@+id/adepter_diary_delete_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_icon_more_vert"
+                android:src="@drawable/ic_icon_delete"
                 android:background="@android:color/transparent"
                 android:padding="15dp"
                 android:layout_alignBottom="@+id/adapter_diary_date"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentTop="true"
-                android:contentDescription="@string/more_option_button"
+                android:contentDescription="@string/delete"
                 app:tint="@color/grey" />
 
         <ImageView
