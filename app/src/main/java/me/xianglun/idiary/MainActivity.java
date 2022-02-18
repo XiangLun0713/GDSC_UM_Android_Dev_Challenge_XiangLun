@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,6 +23,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawer;
     private TextView userName, quotes;
     private ImageView profileImage;
+    private FloatingActionButton addDiaryBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +52,10 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        setSupportActionBar(binding.appBarMain.mainToolbar);
+        setSupportActionBar(binding.appBarMain.toolbar);
 
-        binding.appBarMain.mainFab.setOnClickListener(view -> {
+        addDiaryBtn = binding.appBarMain.fab;
+        addDiaryBtn.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, NewDiaryActivity.class);
             startActivity(intent);
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
@@ -61,9 +65,9 @@ public class MainActivity extends AppCompatActivity {
         profileImage = layout.findViewById(R.id.navigation_imageView);
         userName = layout.findViewById(R.id.navigation_drawer_username);
         quotes = layout.findViewById(R.id.navigation_quotes);
-
         drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
+
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
@@ -72,6 +76,18 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        navController.addOnDestinationChangedListener((navController1, navDestination, bundle) -> {
+            if (navDestination.getId() == R.id.nav_profile) {
+                if (addDiaryBtn.getVisibility() == View.VISIBLE) {
+                    addDiaryBtn.setVisibility(View.INVISIBLE);
+                }
+
+            } else if (navDestination.getId() == R.id.nav_home) {
+                if (addDiaryBtn.getVisibility() == View.INVISIBLE) {
+                    addDiaryBtn.setVisibility(View.VISIBLE);
+                }
+            }
+        });
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
