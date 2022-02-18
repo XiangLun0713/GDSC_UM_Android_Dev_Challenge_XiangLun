@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +33,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -64,6 +66,7 @@ public class NewDiaryActivity extends AppCompatActivity {
     private static final int CAMERA_TAKE_IMAGE_CODE = 400;
 
     private String date, time;
+    private String diaryId;
     private String currentPhotoPath;
     private LinearLayout linearLayout;
     private CircularProgressIndicator progressIndicator;
@@ -74,6 +77,8 @@ public class NewDiaryActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private FirebaseUser firebaseUser;
 
+    private List<String> textList;
+    private List<String> imageList;
     private String[] readStoragePermission;
     private String[] cameraPermission;
     private final String[] hints = {"How was your day?", "What's in your mind?",
@@ -98,24 +103,96 @@ public class NewDiaryActivity extends AppCompatActivity {
         databaseReference = firebaseDatabase.getReference();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
+        Intent intent = getIntent();
+        textList = new ArrayList<>();
+        imageList = new ArrayList<>();
 
-        // Configure the toolbar
-        setSupportActionBar(findViewById(R.id.new_diary_toolbar));
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        // Set up date, time, title, and hint
-        Date c = Calendar.getInstance().getTime();
-        SimpleDateFormat df = new SimpleDateFormat("E, dd-MMM-yyyy   hh:mm a", Locale.getDefault());
-        String formattedDate = df.format(c);
-        dateAndTimeLabel.setText(formattedDate);
-        df = new SimpleDateFormat("E, dd-MMM-yyyy", Locale.getDefault());
-        date = df.format(c);
-        df = new SimpleDateFormat("hh:mm a", Locale.getDefault());
-        time = df.format(c);
-        diaryMainEditText.setHint(hints[new Random().nextInt(hints.length)]);
-        titleText.requestFocus();
+        if (intent.getStringExtra("diaryId") == null) {
+            // Configure the toolbar
+            setSupportActionBar(findViewById(R.id.new_diary_toolbar));
+            Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setTitle("New Diary");
+
+            // Set up date, time, title, and hint accordingly
+            Date c = Calendar.getInstance().getTime();
+            SimpleDateFormat df = new SimpleDateFormat("E, dd-MMM-yyyy   hh:mm a", Locale.getDefault());
+            String formattedDate = df.format(c);
+            dateAndTimeLabel.setText(formattedDate);
+            df = new SimpleDateFormat("E, dd-MMM-yyyy", Locale.getDefault());
+            date = df.format(c);
+            df = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+            time = df.format(c);
+            diaryMainEditText.setHint(hints[new Random().nextInt(hints.length)]);
+            titleText.requestFocus();
+
+        } else {
+            // Configure the toolbar
+            setSupportActionBar(findViewById(R.id.new_diary_toolbar));
+            Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setTitle("View Diary");
+
+            // get data from intent
+            diaryId = intent.getStringExtra("diaryId");
+            String title = intent.getStringExtra("title");
+            String mainText = intent.getStringExtra("mainText");
+            String date = intent.getStringExtra("date");
+            String time = intent.getStringExtra("time");
+            String dateAndTime = date + "   " + time;
+            imageList = intent.getStringArrayListExtra("imagePaths");
+            textList = intent.getStringArrayListExtra("texts");
+            Log.d("image list", imageList.toString());
+
+            // set data accordingly
+            dateAndTimeLabel.setText(dateAndTime);
+            titleText.setText(title);
+            diaryMainEditText.setText(mainText);
+
+            // generate previous images and texts
+            for (int i = 0; i < imageList.size(); i++) {
+                LinearLayout.LayoutParams linearParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                linearParams.setMargins(convertDpToPx(getApplicationContext(), 10), convertDpToPx(getApplicationContext(), 5), convertDpToPx(getApplicationContext(), 10), convertDpToPx(getApplicationContext(), 5));
+
+                View template = getLayoutInflater().inflate(R.layout.template_diary_image, linearLayout, false);
+                ImageView image = template.findViewById(R.id.diary_image);
+                Glide.with(this).load(imageList.get(i)).into(image);
+                FloatingActionButton deleteBtn = template.findViewById(R.id.delete_button);
+
+                deleteBtn.setTag(String.valueOf(i));
+                deleteBtn.setOnClickListener(v -> {
+                    ViewParent parent = deleteBtn.getParent();
+                    int parentIndex = linearLayout.indexOfChild((View) parent);
+                    View editTextAfterImage = linearLayout.getChildAt(parentIndex + 1);
+                    View editTextBeforeImage = linearLayout.getChildAt(parentIndex - 1);
+                    if (editTextAfterImage instanceof EditText && editTextBeforeImage instanceof EditText) {
+                        if (((EditText) editTextBeforeImage).getText().toString().isEmpty() && !((EditText) editTextAfterImage).getText().toString().isEmpty()) {
+                            ((EditText) editTextBeforeImage).setText(((EditText) editTextAfterImage).getText().toString());
+                        } else if (!((EditText) editTextBeforeImage).getText().toString().isEmpty() && !((EditText) editTextAfterImage).getText().toString().isEmpty()) {
+                            ((EditText) editTextBeforeImage).setText(((EditText) editTextBeforeImage).getText().toString().concat("\n").concat(((EditText) editTextAfterImage).getText().toString()));
+                        }
+                        linearLayout.removeView(editTextAfterImage);
+                        editTextBeforeImage.requestFocus();
+                        ((EditText) editTextBeforeImage).setSelection(((EditText) editTextBeforeImage).getText().length());
+                    }
+                    imageList.remove(Integer.parseInt((String) deleteBtn.getTag()));
+                    Log.d("Track removal", "remove at index " + Integer.parseInt((String) deleteBtn.getTag()));
+                    linearLayout.removeView((View) parent);
+                });
+                linearLayout.addView(template, linearParams);
+
+                //add a new edit text view after the image
+                EditText newEditText = new EditText(this);
+                newEditText.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                newEditText.setText(textList.get(i));
+                newEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                newEditText.setBackgroundColor(Color.TRANSPARENT);
+                newEditText.setLineSpacing(convertDpToPx(this, 8), 1);
+                linearLayout.addView(newEditText, linearParams);
+            }
+        }
+        textList = new ArrayList<>();
     }
 
     @Override
@@ -146,12 +223,8 @@ public class NewDiaryActivity extends AppCompatActivity {
 
         String title = titleText.getText().toString();
         String diaryMainText = diaryMainEditText.getText().toString();
-        List<String> textList = new ArrayList<>();
-        List<String> imageList = new ArrayList<>();
 
         HashMap<String, Object> diaryMap = new HashMap<>();
-        diaryMap.put("time", time);
-        diaryMap.put("date", date);
         diaryMap.put("title", title);
         diaryMap.put("diaryMainText", diaryMainText);
 
@@ -170,6 +243,7 @@ public class NewDiaryActivity extends AppCompatActivity {
                                 if (task1.isSuccessful()) {
                                     String imageURL = Objects.requireNonNull(task1.getResult()).toString();
                                     imageList.add(imageURL);
+                                    Log.d("added image", imageURL);
                                 }
                             }).addOnFailureListener(e -> Toast.makeText(NewDiaryActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show());
                             getUriTaskList.add(getUriTask);
@@ -185,11 +259,20 @@ public class NewDiaryActivity extends AppCompatActivity {
         }
 
         Tasks.whenAllComplete(storeImageOnDatabaseTaskList).addOnCompleteListener(task -> Tasks.whenAllComplete(getUriTaskList).addOnCompleteListener(task12 -> {
-            DatabaseReference diaryNode = databaseReference.child("diaries").child(userId).push();
-            String diaryNodeId = diaryNode.getKey();
-            diaryMap.put("diaryId", diaryNodeId);
+            DatabaseReference diaryNode;
+            if (diaryId == null) {
+                diaryNode = databaseReference.child("diaries").child(userId).push();
+                String diaryNodeId = diaryNode.getKey();
+                diaryMap.put("diaryId", diaryNodeId);
+                diaryMap.put("time", time);
+                diaryMap.put("date", date);
+            } else {
+                diaryNode = databaseReference.child("diaries").child(userId).child(diaryId);
+                diaryNode.child("texts").removeValue();
+            }
             diaryMap.put("imagePaths", imageList);
             diaryMap.put("texts", textList);
+            Log.d("image list saved", imageList.toString());
 
             diaryNode.updateChildren(diaryMap).addOnCompleteListener(voidTask -> {
                 if (voidTask.isSuccessful()) {

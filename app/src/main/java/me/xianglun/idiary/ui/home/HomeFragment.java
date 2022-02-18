@@ -59,9 +59,17 @@ public class HomeFragment extends Fragment {
         diaryAdapter.setOnItemClickListener(new DiaryAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                System.out.println(diaryArrayList.get(position).getTitle());
                 // TODO: 2/17/2022 open targeted view diary layout page
-                startActivity(new Intent(context, NewDiaryActivity.class));
+                DiaryModel diary = diaryArrayList.get(position);
+                Intent intent = new Intent(context, NewDiaryActivity.class);
+                intent.putExtra("diaryId", diary.getDiaryId());
+                intent.putExtra("title", diary.getTitle());
+                intent.putExtra("mainText", diary.getDiaryMainText());
+                intent.putExtra("date", diary.getDate());
+                intent.putExtra("time", diary.getTime());
+                intent.putStringArrayListExtra("imagePaths", (ArrayList<String>) diary.getImagePaths());
+                intent.putStringArrayListExtra("texts", (ArrayList<String>) diary.getTexts());
+                startActivity(intent);
                 requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             }
         });

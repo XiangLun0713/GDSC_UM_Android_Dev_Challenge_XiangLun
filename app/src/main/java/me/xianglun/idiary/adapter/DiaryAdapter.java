@@ -109,7 +109,7 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
 
     private void deleteDiaryRecord(String diaryId) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("diaries").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).child(diaryId);
-        databaseReference.removeValue().addOnSuccessListener(unused -> Toast.makeText(context, "Diary deleted successfully", Toast.LENGTH_SHORT).show());
+        databaseReference.removeValue().addOnSuccessListener(unused -> Toast.makeText(context, "Diary deleted", Toast.LENGTH_SHORT).show());
     }
 
     public static class DiaryViewHolder extends RecyclerView.ViewHolder {
