@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                         if (user.getUsername() != null) userName.setText(user.getUsername());
                         if (user.getStatus() != null) quotes.setText(user.getStatus());
                         if (user.getImagePath() != null)
-                            Glide.with(MainActivity.this).load(user.getImagePath()).into(profileImage);
+                            Glide.with(getApplicationContext()).load(user.getImagePath()).into(profileImage);
                     }
                 }
 

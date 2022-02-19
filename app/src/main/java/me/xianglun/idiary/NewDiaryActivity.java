@@ -31,7 +31,6 @@ import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -73,7 +72,6 @@ public class NewDiaryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_diary);
 
         // Declare/Initialize variables
-        CircularProgressIndicator progressIndicator = findViewById(R.id.add_diary_progress_bar);
         progressCardView = findViewById(R.id.progress_card_view);
         linearLayout = findViewById(R.id.new_diary_linear_layout);
         TextView dateAndTimeLabel = findViewById(R.id.date_and_time_label);
@@ -139,7 +137,7 @@ public class NewDiaryActivity extends AppCompatActivity {
                     Glide.with(this).load(imageList.get(i)).into(image);
                     FloatingActionButton deleteBtn = template.findViewById(R.id.delete_button);
 
-                    deleteBtn.setTag(String.valueOf(i));
+                    deleteBtn.setTag(imageList.get(i));
                     deleteBtn.setOnClickListener(v -> {
                         ViewParent parent = deleteBtn.getParent();
                         int parentIndex = linearLayout.indexOfChild((View) parent);
@@ -155,8 +153,7 @@ public class NewDiaryActivity extends AppCompatActivity {
                             editTextBeforeImage.requestFocus();
                             ((EditText) editTextBeforeImage).setSelection(((EditText) editTextBeforeImage).getText().length());
                         }
-                        //todo fix index out of bound
-                        imageList.remove(Integer.parseInt((String) deleteBtn.getTag()));
+                        imageList.remove((String) deleteBtn.getTag());
                         linearLayout.removeView((View) parent);
                     });
                     linearLayout.addView(template, linearParams);
