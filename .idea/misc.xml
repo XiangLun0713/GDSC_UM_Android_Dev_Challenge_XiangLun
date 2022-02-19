@@ -6,6 +6,7 @@
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Idiary/app/src/main/res/drawable-v24/ic_arrow_back.xml" value="0.1785" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Idiary/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1085" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Idiary/app/src/main/res/drawable/ic_icon_delete.xml" value="0.1" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/Idiary/app/src/main/res/drawable/ic_icon_person.xml" value="0.2055" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Idiary/app/src/main/res/drawable/ic_icon_save.xml" value="0.127" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Idiary/app/src/main/res/drawable/ic_idiary_logo.xml" value="0.2545" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Idiary/app/src/main/res/drawable/ic_idiaryspashscreen.xml" value="0.2545" />
@@ -28,6 +29,7 @@
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Idiary/app/src/main/res/layout/app_bar_main.xml" value="0.1" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Idiary/app/src/main/res/layout/content_main.xml" value="0.1" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Idiary/app/src/main/res/layout/delete_button.xml" value="0.259375" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/Idiary/app/src/main/res/layout/fragment_feedback.xml" value="0.264" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Idiary/app/src/main/res/layout/fragment_gallery.xml" value="0.259375" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Idiary/app/src/main/res/layout/fragment_home.xml" value="0.152" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/Idiary/app/src/main/res/layout/fragment_profile.xml" value="0.264" />

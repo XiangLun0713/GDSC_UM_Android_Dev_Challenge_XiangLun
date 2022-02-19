@@ -9,7 +9,7 @@
     <string name="action_log_out">Log Out</string>
 
     <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
+    <string name="menu_feedback">Feedback</string>
     <string name="menu_profile">Profile</string>
     <string name="button_add_diary">Add Diary Button</string>
     <string name="add_a_photo">Add a photo</string>
@@ -52,5 +52,7 @@
     <string name="unlock">Unlock</string>
     <string name="welcome_back">Welcome Back!</string>
     <string name="unlock_with_fingerprint">Unlock with fingerprint</string>
+    <string name="developer">Developed by Choo Xiang Lun</string>
+    <string name="feedback_label">Feel free to contact me via\nxlchoo25@gmail.com\nfor any bugs encountered</string>
 
 </resources>

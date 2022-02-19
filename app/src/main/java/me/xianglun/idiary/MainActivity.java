@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView userName, quotes;
     private ImageView profileImage;
     private FloatingActionButton addDiaryBtn;
+    private boolean isAtProfile;
+    private boolean isAtFeedback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         setSupportActionBar(binding.appBarMain.toolbar);
 
+        isAtProfile = false;
+        isAtFeedback = false;
         PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
 
         addDiaryBtn = binding.appBarMain.fab;
@@ -77,14 +81,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery)
+        mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.nav_home)
                 .setOpenableLayout(drawer)
                 .build();
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         navController.addOnDestinationChangedListener((navController1, navDestination, bundle) -> {
             if (navDestination.getId() == R.id.nav_profile) {
+                isAtProfile = true;
+                isAtFeedback = false;
                 if (addDiaryBtn.getVisibility() == View.VISIBLE) {
                     addDiaryBtn.setVisibility(View.INVISIBLE);
                 }
@@ -93,6 +98,14 @@ public class MainActivity extends AppCompatActivity {
                 if (addDiaryBtn.getVisibility() == View.INVISIBLE) {
                     addDiaryBtn.setVisibility(View.VISIBLE);
                 }
+                isAtProfile = false;
+                isAtFeedback = false;
+            } else if (navDestination.getId() == R.id.nav_feedback) {
+                if (addDiaryBtn.getVisibility() == View.VISIBLE) {
+                    addDiaryBtn.setVisibility(View.INVISIBLE);
+                }
+                isAtProfile = false;
+                isAtFeedback = true;
             }
         });
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
@@ -157,15 +170,19 @@ public class MainActivity extends AppCompatActivity {
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            if (doubleBackToExitPressedOnce) {
-                this.finishAffinity();
-                return;
+            if (!isAtFeedback && !isAtProfile) {
+                if (doubleBackToExitPressedOnce) {
+                    this.finishAffinity();
+                    return;
+                }
+
+                this.doubleBackToExitPressedOnce = true;
+                Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
+            } else {
+                super.onBackPressed();
             }
-
-            this.doubleBackToExitPressedOnce = true;
-            Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
-
-            new Handler(Looper.getMainLooper()).postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
         }
     }
 
