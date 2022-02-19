@@ -109,4 +109,19 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
+    <TextView
+            android:id="@+id/fingerprint_label"
+            android:clickable="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="20dp"
+            android:text="@string/unlock_with_fingerprint"
+            android:drawablePadding="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:drawableRightCompat="@drawable/ic_icon_fingerprint"
+            android:focusable="true" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -51,5 +51,6 @@
     <string name="fingerprint_title">Unlock with fingerprint</string>
     <string name="unlock">Unlock</string>
     <string name="welcome_back">Welcome Back!</string>
+    <string name="unlock_with_fingerprint">Unlock with fingerprint</string>
 
 </resources>

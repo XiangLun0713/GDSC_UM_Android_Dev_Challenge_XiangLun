@@ -42,7 +42,7 @@ public class IntroductoryActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean lockSettingOn = sharedPreferences.getBoolean(KEY_LOCK, false);
 
-        relativeLayout.animate().translationY(2000).setDuration(700).setStartDelay(2500).withEndAction(() -> {
+        relativeLayout.animate().translationY(2000).setDuration(1000).setStartDelay(2500).withEndAction(() -> {
             Intent intent;
             if (currentUser != null) {
                 if (lockSettingOn) {
