@@ -34,12 +34,10 @@ public class LockScreenActivity extends AppCompatActivity {
     private static final String KEY_FINGERPRINT = "fingerprint";
     private static final int REQUEST_CODE = 100;
 
-    private Executor executor;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
     private LottieAnimationView animationView;
     private TextInputLayout passwordInputLayout;
-    private TextView fingerPrintLabel;
 
     @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
@@ -51,7 +49,7 @@ public class LockScreenActivity extends AppCompatActivity {
         MaterialButton unlockBtn = findViewById(R.id.lockscreen_button);
         animationView = findViewById(R.id.lockscreen_animation_view);
         passwordInputLayout = findViewById(R.id.lockscreen_password);
-        fingerPrintLabel = findViewById(R.id.fingerprint_label);
+        TextView fingerPrintLabel = findViewById(R.id.fingerprint_label);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean fingerprintSettingOn = sharedPreferences.getBoolean(KEY_FINGERPRINT, false);
@@ -63,26 +61,21 @@ public class LockScreenActivity extends AppCompatActivity {
 
 
         BiometricManager biometricManager = BiometricManager.from(this);
-        switch (biometricManager.canAuthenticate(BIOMETRIC_STRONG | DEVICE_CREDENTIAL)) {
-            case BiometricManager.BIOMETRIC_SUCCESS:
-                Toast.makeText(this, "Fingerprint matched", Toast.LENGTH_SHORT).show();
-                break;
-            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
-                Toast.makeText(this, "No fingerprint hardware available on this device", Toast.LENGTH_SHORT).show();
-                break;
-            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
-                Toast.makeText(this, "Fingerprint device are currently unavailable", Toast.LENGTH_SHORT).show();
-                break;
-            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
-                // Prompts the user to create credentials that your app accepts.
-                final Intent enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
-                enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
-                        BIOMETRIC_STRONG | DEVICE_CREDENTIAL);
-                startActivityForResult(enrollIntent, REQUEST_CODE);
-                break;
+        int i = biometricManager.canAuthenticate(BIOMETRIC_STRONG | DEVICE_CREDENTIAL);
+        if (i == BiometricManager.BIOMETRIC_SUCCESS) {
+            Toast.makeText(this, "Fingerprint matched", Toast.LENGTH_SHORT).show();
+        } else if (i == BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE) {
+            Toast.makeText(this, "No fingerprint hardware available on this device", Toast.LENGTH_SHORT).show();
+        } else if (i == BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE) {
+            Toast.makeText(this, "Fingerprint device are currently unavailable", Toast.LENGTH_SHORT).show();
+        } else if (i == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {// Prompts the user to create credentials that your app accepts.
+            final Intent enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
+            enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                    BIOMETRIC_STRONG | DEVICE_CREDENTIAL);
+            startActivityForResult(enrollIntent, REQUEST_CODE);
         }
 
-        executor = ContextCompat.getMainExecutor(this);
+        Executor executor = ContextCompat.getMainExecutor(this);
         biometricPrompt = new BiometricPrompt(this,
                 executor, new BiometricPrompt.AuthenticationCallback() {
             @Override
