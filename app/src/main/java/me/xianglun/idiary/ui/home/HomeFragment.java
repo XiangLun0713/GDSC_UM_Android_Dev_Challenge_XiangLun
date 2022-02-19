@@ -77,7 +77,7 @@ public class HomeFragment extends Fragment {
                 if (snapshot.exists()) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         DiaryModel diary = dataSnapshot.getValue(DiaryModel.class);
-                        diaryArrayList.add(diary);
+                        diaryArrayList.add(0, diary);
                     }
                 } else {
                     if (binding != null) {
