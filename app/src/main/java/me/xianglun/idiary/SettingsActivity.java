@@ -1,11 +1,11 @@
 package me.xianglun.idiary;
 
 import android.os.Bundle;
-import android.text.Html;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
+
+import java.util.Objects;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -19,12 +19,10 @@ public class SettingsActivity extends AppCompatActivity {
                     .replace(R.id.settings, new SettingsFragment())
                     .commit();
         }
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle((Html.fromHtml("<font color=\"#444444\">" + getString(R.string.settings) + "</font>")));
-        }
+        setSupportActionBar(findViewById(R.id.toolbar_settings));
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setTitle("Settings");
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {

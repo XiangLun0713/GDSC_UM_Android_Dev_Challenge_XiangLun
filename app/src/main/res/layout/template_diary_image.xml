@@ -9,6 +9,7 @@
             android:id="@+id/diary_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
             android:scaleType="centerInside"
             android:contentDescription="@string/image" />
 
