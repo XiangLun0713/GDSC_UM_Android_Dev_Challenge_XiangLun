@@ -1,11 +1,8 @@
 package me.xianglun.idiary.ui.profile;
 
-import static android.app.Activity.RESULT_OK;
-
-import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputFilter;
@@ -23,10 +20,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -46,9 +43,6 @@ import me.xianglun.idiary.model.UserModel;
 
 public class ProfileFragment extends Fragment {
 
-    private static final int READ_STORAGE_REQUEST_CODE = 100;
-    private static final int GALLERY_PICK_IMAGE_CODE = 200;
-
     private FragmentProfileBinding binding;
     private Context context;
     private ImageView profilePic;
@@ -57,15 +51,10 @@ public class ProfileFragment extends Fragment {
     private DatabaseReference currentUserNode;
     private CardView progressCardView;
 
-    private String[] readStoragePermission;
-
-
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         context = getActivity();
-
-        readStoragePermission = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
         profilePic = binding.profilePicImageView;
         usernameTextView = binding.profileUsername;
         statusTextView = binding.profileStatus;
@@ -116,13 +105,7 @@ public class ProfileFragment extends Fragment {
             builder.show();
         });
 
-        profilePic.setOnClickListener(v -> {
-            if (!checkReadStoragePermission()) {
-                requestReadStoragePermission();
-            } else {
-                pickImageFromGallery();
-            }
-        });
+        profilePic.setOnClickListener(v -> ImagePicker.with(this).crop(1f, 1f).start());
 
         return root;
     }
@@ -143,6 +126,7 @@ public class ProfileFragment extends Fragment {
 
                 }
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
@@ -156,34 +140,10 @@ public class ProfileFragment extends Fragment {
         binding = null;
     }
 
-    private void requestReadStoragePermission() {
-        requestPermissions(readStoragePermission, READ_STORAGE_REQUEST_CODE);
-    }
-
-    private void pickImageFromGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent, GALLERY_PICK_IMAGE_CODE);
-    }
-
-    private boolean checkReadStoragePermission() {
-        return (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == READ_STORAGE_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                pickImageFromGallery();
-            }
-        }
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == GALLERY_PICK_IMAGE_CODE && resultCode == RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
             if (data != null) {
                 progressCardView.setVisibility(View.VISIBLE);
                 FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
@@ -207,6 +167,10 @@ public class ProfileFragment extends Fragment {
                     }
                 });
             }
+        } else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Toast.makeText(context, ImagePicker.getError(data), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, "Cancelled", Toast.LENGTH_SHORT).show();
         }
     }
 }

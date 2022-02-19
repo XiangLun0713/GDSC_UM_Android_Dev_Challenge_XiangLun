@@ -47,7 +47,7 @@
     <string name="privacy_title">Lock diary</string>
     <string name="privacy_summary">Require password to enter Idiary</string>
     <string name="password_title">Password settings</string>
-    <string name="password_summary">Enter your password</string>
+    <string name="password_summary">Set your password here!</string>
     <string name="fingerprint_title">Unlock with fingerprint</string>
     <string name="unlock">Unlock</string>
     <string name="welcome_back">Welcome Back!</string>

@@ -21,20 +21,5 @@
                 app:defaultValue="false" />
 
     </PreferenceCategory>
-    <PreferenceCategory app:title="@string/notification_header">
-
-        <SwitchPreferenceCompat
-                app:key="notification"
-                app:title="@string/notification_title"
-                app:defaultValue="false" />
-
-        <EditTextPreference
-                app:key="reply"
-                app:title="@string/notification_sub_settings_title"
-                app:summary="Set desired time in 0000 - 2400 format"
-                app:dependency="notification" />
-
-    </PreferenceCategory>
-
 
 </PreferenceScreen>
