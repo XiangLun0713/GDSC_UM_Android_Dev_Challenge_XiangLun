@@ -4,7 +4,7 @@ import java.util.List;
 
 public class DiaryModel {
     private String date, time, title, diaryMainText, diaryId;
-    List<String> imagePaths, texts;
+    List<String> imagePaths;
 
     public DiaryModel() {
     }
@@ -57,11 +57,4 @@ public class DiaryModel {
         this.imagePaths = imagePaths;
     }
 
-    public List<String> getTexts() {
-        return texts;
-    }
-
-    public void setTexts(List<String> texts) {
-        this.texts = texts;
-    }
 }

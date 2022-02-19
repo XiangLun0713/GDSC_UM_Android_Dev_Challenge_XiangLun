@@ -65,7 +65,6 @@ public class HomeFragment extends Fragment {
             intent.putExtra("date", diary.getDate());
             intent.putExtra("time", diary.getTime());
             intent.putStringArrayListExtra("imagePaths", (ArrayList<String>) diary.getImagePaths());
-            intent.putStringArrayListExtra("texts", (ArrayList<String>) diary.getTexts());
             startActivity(intent);
             requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });

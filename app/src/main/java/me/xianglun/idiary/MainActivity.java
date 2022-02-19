@@ -1,7 +1,6 @@
 package me.xianglun.idiary;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -40,10 +39,6 @@ import me.xianglun.idiary.model.UserModel;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String KEY_LOCK = "lock";
-    private static final String KEY_PASSWORD = "password";
-    private static final String KEY_FINGERPRINT = "fingerprint";
-
     private boolean doubleBackToExitPressedOnce = false;
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
@@ -59,13 +54,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        setSupportActionBar(binding.appBarMain.toolbar);
+        setSupportActionBar(binding.appBarMain.mainToolbar);
 
         isAtProfile = false;
         isAtFeedback = false;
         PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
 
-        addDiaryBtn = binding.appBarMain.fab;
+        addDiaryBtn = binding.appBarMain.mainFab;
         addDiaryBtn.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, NewDiaryActivity.class);
             startActivity(intent);
@@ -132,10 +127,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        System.out.println("LOCK switch: " + sharedPreferences.getBoolean(KEY_LOCK, false));
-        System.out.println("password text: " + sharedPreferences.getString(KEY_PASSWORD, ""));
-        System.out.println("fingerprint switch: " + sharedPreferences.getBoolean(KEY_FINGERPRINT, false));
     }
 
     @Override

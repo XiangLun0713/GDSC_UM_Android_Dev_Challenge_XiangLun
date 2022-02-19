@@ -3,10 +3,8 @@ package me.xianglun.idiary;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -60,7 +58,6 @@ public class NewDiaryActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private FirebaseUser firebaseUser;
 
-    private List<String> textList;
     private List<String> imageList;
     private final String[] hints = {"How was your day?", "What's in your mind?",
             "What was the best part of your day?", "How are you feeling today?",
@@ -82,7 +79,6 @@ public class NewDiaryActivity extends AppCompatActivity {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
         Intent intent = getIntent();
-        textList = new ArrayList<>();
         imageList = new ArrayList<>();
 
         if (intent.getStringExtra("diaryId") == null) {
@@ -118,8 +114,8 @@ public class NewDiaryActivity extends AppCompatActivity {
             String date = intent.getStringExtra("date");
             String time = intent.getStringExtra("time");
             String dateAndTime = date + "   " + time;
-            imageList = intent.getStringArrayListExtra("imagePaths");
-            textList = intent.getStringArrayListExtra("texts");
+            if (intent.getStringArrayListExtra("imagePaths") != null)
+                imageList = intent.getStringArrayListExtra("imagePaths");
 
             // set data accordingly
             dateAndTimeLabel.setText(dateAndTime);
@@ -140,37 +136,14 @@ public class NewDiaryActivity extends AppCompatActivity {
                     deleteBtn.setTag(imageList.get(i));
                     deleteBtn.setOnClickListener(v -> {
                         ViewParent parent = deleteBtn.getParent();
-                        int parentIndex = linearLayout.indexOfChild((View) parent);
-                        View editTextAfterImage = linearLayout.getChildAt(parentIndex + 1);
-                        View editTextBeforeImage = linearLayout.getChildAt(parentIndex - 1);
-                        if (editTextAfterImage instanceof EditText && editTextBeforeImage instanceof EditText) {
-                            if (((EditText) editTextBeforeImage).getText().toString().isEmpty() && !((EditText) editTextAfterImage).getText().toString().isEmpty()) {
-                                ((EditText) editTextBeforeImage).setText(((EditText) editTextAfterImage).getText().toString());
-                            } else if (!((EditText) editTextBeforeImage).getText().toString().isEmpty() && !((EditText) editTextAfterImage).getText().toString().isEmpty()) {
-                                ((EditText) editTextBeforeImage).setText(((EditText) editTextBeforeImage).getText().toString().concat("\n").concat(((EditText) editTextAfterImage).getText().toString()));
-                            }
-                            linearLayout.removeView(editTextAfterImage);
-                            editTextBeforeImage.requestFocus();
-                            ((EditText) editTextBeforeImage).setSelection(((EditText) editTextBeforeImage).getText().length());
-                        }
                         imageList.remove((String) deleteBtn.getTag());
                         linearLayout.removeView((View) parent);
                     });
                     linearLayout.addView(template, linearParams);
-
-                    //add a new edit text view after the image
-                    EditText newEditText = new EditText(this);
-                    newEditText.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-                    newEditText.setText(textList.get(i));
-                    newEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-                    newEditText.setBackgroundColor(Color.TRANSPARENT);
-                    newEditText.setLineSpacing(convertDpToPx(this, 8), 1);
-                    linearLayout.addView(newEditText, linearParams);
                 }
             }
 
         }
-        textList = new ArrayList<>();
     }
 
     @Override
@@ -209,7 +182,7 @@ public class NewDiaryActivity extends AppCompatActivity {
         List<Task<UploadTask.TaskSnapshot>> storeImageOnDatabaseTaskList = new ArrayList<>();
         List<Task<Uri>> getUriTaskList = new ArrayList<>();
 
-        for (int i = 3; i < linearLayout.getChildCount(); i += 2) {
+        for (int i = 3; i <= linearLayout.getChildCount(); i++) {
             if (linearLayout.getChildAt(i) instanceof RelativeLayout) {
                 RelativeLayout relativeLayout = (RelativeLayout) linearLayout.getChildAt(i);
                 ImageView image = relativeLayout.findViewById(R.id.diary_image);
@@ -229,10 +202,6 @@ public class NewDiaryActivity extends AppCompatActivity {
                     storeImageOnDatabaseTaskList.add(storeImageOnDatabaseTask);
                 }
             }
-            if (linearLayout.getChildAt(i + 1) instanceof EditText) {
-                EditText text = (EditText) linearLayout.getChildAt(i + 1);
-                textList.add(text.getText().toString());
-            }
         }
 
         Tasks.whenAllComplete(storeImageOnDatabaseTaskList).addOnCompleteListener(task -> Tasks.whenAllComplete(getUriTaskList).addOnCompleteListener(task12 -> {
@@ -248,7 +217,6 @@ public class NewDiaryActivity extends AppCompatActivity {
                 diaryNode.child("texts").removeValue();
             }
             diaryMap.put("imagePaths", imageList);
-            diaryMap.put("texts", textList);
 
             diaryNode.updateChildren(diaryMap).addOnCompleteListener(voidTask -> {
                 if (voidTask.isSuccessful()) {
@@ -352,32 +320,10 @@ public class NewDiaryActivity extends AppCompatActivity {
         FloatingActionButton deleteBtn = template.findViewById(R.id.delete_button);
         deleteBtn.setOnClickListener(v -> {
             ViewParent parent = deleteBtn.getParent();
-            int parentIndex = linearLayout.indexOfChild((View) parent);
-            View editTextAfterImage = linearLayout.getChildAt(parentIndex + 1);
-            View editTextBeforeImage = linearLayout.getChildAt(parentIndex - 1);
-            if (editTextAfterImage instanceof EditText && editTextBeforeImage instanceof EditText) {
-                if (((EditText) editTextBeforeImage).getText().toString().isEmpty() && !((EditText) editTextAfterImage).getText().toString().isEmpty()) {
-                    ((EditText) editTextBeforeImage).setText(((EditText) editTextAfterImage).getText().toString());
-                } else if (!((EditText) editTextBeforeImage).getText().toString().isEmpty() && !((EditText) editTextAfterImage).getText().toString().isEmpty()) {
-                    ((EditText) editTextBeforeImage).setText(((EditText) editTextBeforeImage).getText().toString().concat("\n").concat(((EditText) editTextAfterImage).getText().toString()));
-                }
-                linearLayout.removeView(editTextAfterImage);
-                editTextBeforeImage.requestFocus();
-                ((EditText) editTextBeforeImage).setSelection(((EditText) editTextBeforeImage).getText().length());
-            }
             linearLayout.removeView((View) parent);
         });
         linearLayout.addView(template, linearParams);
 
-        //add a new edit text view after the image
-        EditText newEditText = new EditText(this);
-        newEditText.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-        newEditText.setHint("Tell us more!");
-        newEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-        newEditText.setBackgroundColor(Color.TRANSPARENT);
-        newEditText.setLineSpacing(convertDpToPx(this, 8), 1);
-        newEditText.requestFocus();
-        linearLayout.addView(newEditText, linearParams);
     }
 
     public int convertDpToPx(Context context, float dp) {

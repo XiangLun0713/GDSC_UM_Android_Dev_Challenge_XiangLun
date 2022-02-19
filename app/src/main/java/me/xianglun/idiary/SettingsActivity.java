@@ -13,6 +13,7 @@ import java.util.Objects;
 public class SettingsActivity extends AppCompatActivity {
 
     private static final String KEY_PASSWORD = "password";
+    private static final String KEY_LOCK = "lock";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +48,8 @@ public class SettingsActivity extends AppCompatActivity {
     public void onBackPressed() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String passwordSet = sharedPreferences.getString(KEY_PASSWORD, "");
-        if (!passwordSet.equals("") && !passwordSet.isEmpty()) {
+        boolean lockSettingOn = sharedPreferences.getBoolean(KEY_LOCK, false);
+        if (!passwordSet.equals("") && !passwordSet.isEmpty() && lockSettingOn) {
             super.onBackPressed();
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         } else {

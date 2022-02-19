@@ -120,8 +120,13 @@ public class ProfileFragment extends Fragment {
                         if (user.getUsername() != null)
                             usernameTextView.setText(user.getUsername());
                         if (user.getStatus() != null) statusTextView.setText(user.getStatus());
-                        if (user.getImagePath() != null)
-                            Glide.with(context).load(user.getImagePath()).into(profilePic);
+                        if (user.getImagePath() != null) {
+                            try {
+                                Glide.with(context).load(user.getImagePath()).into(profilePic);
+                            } catch (Exception e) {
+                                Toast.makeText(context, "Please try again. Make sure you're connected to a stable network", Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     }
 
                 }
