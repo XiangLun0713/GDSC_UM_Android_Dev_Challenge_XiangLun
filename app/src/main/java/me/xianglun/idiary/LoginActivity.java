@@ -16,7 +16,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
-
     private TextInputLayout loginEmail, loginPassword;
     private boolean doubleBackToExitPressedOnce = false;
     private FirebaseAuth mAuth;
@@ -38,7 +37,6 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
             overridePendingTransition(R.anim.slide_in_left_slow, R.anim.slide_out_right_slow);
         });
-
         loginBtn.setOnClickListener(v -> login());
     }
 

@@ -96,6 +96,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/register"
+            android:textColor="@color/grey"
             android:textAllCaps="false"
             android:layout_below="@id/register_password"
             android:layout_marginTop="10dp"

@@ -1,6 +1,7 @@
 package me.xianglun.idiary;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -21,6 +22,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.preference.PreferenceManager;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -38,6 +40,10 @@ import me.xianglun.idiary.model.UserModel;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String KEY_LOCK = "lock";
+    private static final String KEY_PASSWORD = "password";
+    private static final String KEY_FINGERPRINT = "fingerprint";
+
     private boolean doubleBackToExitPressedOnce = false;
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
@@ -49,10 +55,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.appBarMain.toolbar);
+
+        PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
 
         addDiaryBtn = binding.appBarMain.fab;
         addDiaryBtn.setOnClickListener(view -> {
@@ -112,6 +119,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        System.out.println("LOCK switch: " + sharedPreferences.getBoolean(KEY_LOCK, false));
+        System.out.println("password text: " + sharedPreferences.getString(KEY_PASSWORD, ""));
+        System.out.println("fingerprint switch: " + sharedPreferences.getBoolean(KEY_FINGERPRINT, false));
     }
 
     @Override
@@ -125,8 +136,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {
-            // TODO: 2/12/2022 forward the user to the setting activity
-            Toast.makeText(this, "Opening Settings", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+
         } else if (item.getItemId() == R.id.action_log_out) {
             logout();
         }

@@ -20,7 +20,13 @@
             android:supportsRtl="true"
             android:theme="@style/Theme.Idiary">
         <activity
+                android:name=".LockScreenActivity"
+                android:exported="false" />
+        <activity
                 android:name=".RegisterActivity"
+                android:exported="false" />
+        <activity
+                android:name=".SettingsActivity"
                 android:exported="false" />
         <activity
                 android:name=".IntroductoryActivity"
