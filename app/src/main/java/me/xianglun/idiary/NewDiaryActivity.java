@@ -1,14 +1,11 @@
 package me.xianglun.idiary;
 
-import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,11 +25,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 
 import com.bumptech.glide.Glide;
+import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -45,8 +40,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -59,18 +52,10 @@ import java.util.Random;
 
 public class NewDiaryActivity extends AppCompatActivity {
 
-    private static final int READ_STORAGE_REQUEST_CODE = 100;
-    private static final int GALLERY_PICK_IMAGE_CODE = 200;
-    private static final int CAMERA_REQUEST_CODE = 300;
-    private static final int CAMERA_TAKE_IMAGE_CODE = 400;
-
     private String date, time;
     private String diaryId;
-    private String currentPhotoPath;
     private LinearLayout linearLayout;
-    private CircularProgressIndicator progressIndicator;
     private CardView progressCardView;
-    private TextView dateAndTimeLabel;
     private EditText titleText;
     private EditText diaryMainEditText;
     private DatabaseReference databaseReference;
@@ -78,8 +63,6 @@ public class NewDiaryActivity extends AppCompatActivity {
 
     private List<String> textList;
     private List<String> imageList;
-    private String[] readStoragePermission;
-    private String[] cameraPermission;
     private final String[] hints = {"How was your day?", "What's in your mind?",
             "What was the best part of your day?", "How are you feeling today?",
             "Did you learn anything new today?", "What are you most proud of today?"};
@@ -90,12 +73,10 @@ public class NewDiaryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_diary);
 
         // Declare/Initialize variables
-        readStoragePermission = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
-        cameraPermission = new String[]{Manifest.permission.CAMERA};
-        progressIndicator = findViewById(R.id.add_diary_progress_bar);
+        CircularProgressIndicator progressIndicator = findViewById(R.id.add_diary_progress_bar);
         progressCardView = findViewById(R.id.progress_card_view);
         linearLayout = findViewById(R.id.new_diary_linear_layout);
-        dateAndTimeLabel = findViewById(R.id.date_and_time_label);
+        TextView dateAndTimeLabel = findViewById(R.id.date_and_time_label);
         titleText = findViewById(R.id.diary_title);
         diaryMainEditText = findViewById(R.id.diary_text);
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance("https://idiary-341301-default-rtdb.asia-southeast1.firebasedatabase.app");
@@ -174,6 +155,7 @@ public class NewDiaryActivity extends AppCompatActivity {
                             editTextBeforeImage.requestFocus();
                             ((EditText) editTextBeforeImage).setSelection(((EditText) editTextBeforeImage).getText().length());
                         }
+                        //todo fix index out of bound
                         imageList.remove(Integer.parseInt((String) deleteBtn.getTag()));
                         linearLayout.removeView((View) parent);
                     });
@@ -344,118 +326,21 @@ public class NewDiaryActivity extends AppCompatActivity {
     }
 
     private void displayImagePickerDialog() {
-        String[] items = {"Gallery", "Camera"};
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Choose image from");
-        dialog.setItems(items, (dialog1, which) -> {
-            switch (which) {
-                case 0:
-                    if (!checkReadStoragePermission()) {
-                        requestReadStoragePermission();
-                    } else {
-                        pickImageFromGallery();
-                    }
-                    break;
-                case 1:
-                    if (!checkCameraPermission()) {
-                        requestCameraPermission();
-                    } else {
-                        dispatchTakePictureIntent();
-                    }
-                    break;
-            }
-        });
-        dialog.show();
-    }
-
-    private void requestCameraPermission() {
-        ActivityCompat.requestPermissions(this, cameraPermission, CAMERA_REQUEST_CODE);
-    }
-
-    private void requestReadStoragePermission() {
-        ActivityCompat.requestPermissions(this, readStoragePermission, READ_STORAGE_REQUEST_CODE);
-    }
-
-    private void pickImageFromGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent, GALLERY_PICK_IMAGE_CODE);
-    }
-
-    private boolean checkCameraPermission() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private boolean checkReadStoragePermission() {
-        return (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == READ_STORAGE_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                pickImageFromGallery();
-            }
-        } else if (requestCode == CAMERA_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                dispatchTakePictureIntent();
-            }
-        }
+        ImagePicker.with(this).start();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == GALLERY_PICK_IMAGE_CODE && resultCode == RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
             if (data != null) {
-                addDiaryImageTemplate(data.getData());
+                Uri uri = data.getData();
+                addDiaryImageTemplate(uri);
             }
-        } else if (requestCode == CAMERA_TAKE_IMAGE_CODE && resultCode == RESULT_OK) {
-            if (data != null) {
-                File file = new File(currentPhotoPath);
-                addDiaryImageTemplate(Uri.fromFile(file));
-            }
-        }
-    }
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                Toast.makeText(this, "Error in creating file", Toast.LENGTH_SHORT).show();
-            }
-
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "me.xianglun.idiary.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, CAMERA_TAKE_IMAGE_CODE);
-            }
+        } else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show();
         }
     }
 

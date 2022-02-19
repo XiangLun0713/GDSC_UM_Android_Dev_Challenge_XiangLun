@@ -1,4 +1,8 @@
 buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
     dependencies {
         classpath 'com.google.gms:google-services:4.3.10'
     }
@@ -6,6 +10,13 @@ buildscript {
 plugins {
     id 'com.android.application' version '7.1.1' apply false
     id 'com.android.library' version '7.1.1' apply false
+}
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+    }
 }
 
 task clean(type: Delete) {
