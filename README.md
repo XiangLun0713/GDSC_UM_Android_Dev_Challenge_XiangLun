@@ -1,5 +1,5 @@
 # GDSC UM Android Developement National Challenge
-Hi! I'm Choo Xiang Lun, a first-year computer science student from the University of Malaya. This is my submission for the Android Development Challenge organized by Google Developer Student Club from the University of Malaya. The task is to either create an diary application (called Idiary) from scratch, or to modify the Idiary application source code provided by the organizer. The participation method that I chose is to **create my own application from scratch**. Hope you'll like my version of the Idiary application!! :D
+Hi! I'm Choo Xiang Lun, a first-year computer science student from the University of Malaya. This is my submission for the Android Development National Challenge organized by Google Developer Student Club from the University of Malaya. The task is to either create an diary application (called Idiary) from scratch, or to modify the Idiary application source code provided by the organizer. The participation method that I chose is to **create my own application from scratch**. Hope you'll like my version of the Idiary application!! :D
 <br>
 <br>
 *\*\*This application was awarded as the **overall best application**🏆 with the best user interface, best new functionality, and best creative firebase connection.*
