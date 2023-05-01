@@ -8,7 +8,7 @@ Hi! I'm Choo Xiang Lun, a first-year computer science student from the Universit
 
 ## About Idiary
 ### Official website:
- -> <a href="https://xianglun.me/Idiary">Click here to go to Idiary official website</a></br>
+ -> <a href="https://xianglun0713.github.io/Idiary/">Click here to go to Idiary official website</a></br>
  -> <a href="https://github.com/XiangLun0713/Idiary">Source code for the Idiary official website</a>
  
 ### Logo:
